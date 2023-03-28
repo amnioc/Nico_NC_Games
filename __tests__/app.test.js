@@ -29,7 +29,7 @@ describe("/api/categories", () => {
         });
       });
   });
-  it.only('"404: returns a "route does not exist" message for mistyped path', () => {
+  it('"404: returns a "route does not exist" message for mistyped path', () => {
     request(app)
       .get("/api/catgories")
       .expect(404)
