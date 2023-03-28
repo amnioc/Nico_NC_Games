@@ -56,11 +56,27 @@ describe("/api/reviews/:review_id", () => {
         expect(review).toEqual(testObj);
       });
   });
-});
-//doesn't exist but ok
-//incorrect format
 
-describe("Errors/Issues Handling", () => {
+  it('400: should return "invalid data-type" for non-numerical review ID', () => {
+    return request(app)
+      .get("/api/reviews/Jenga")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Format");
+      });
+  });
+
+  it("404: review does not exist. Returns error message", () => {
+    return request(app)
+      .get("/api/reviews/123")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review Does Not Exist, Yet.");
+      });
+  });
+});
+
+describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
       .get("/api/catgories")
