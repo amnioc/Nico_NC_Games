@@ -12,7 +12,7 @@ afterAll(() => {
   return connection.end();
 });
 
-describe("/api/categories", () => {
+describe.only("/api/categories", () => {
   it("200: should return array of category object with slug and description keys", () => {
     return request(app)
       .get("/api/categories")
@@ -30,7 +30,7 @@ describe("/api/categories", () => {
       });
   });
   it('"404: returns a "route does not exist" message for mistyped path', () => {
-    request(app)
+    return request(app)
       .get("/api/catgories")
       .expect(404)
       .then(({ body }) => {
@@ -38,11 +38,15 @@ describe("/api/categories", () => {
       });
   });
   it("405: returns a 'method not allowed' message for restricted paths", () => {
-    request(app)
+    return request(app)
       .patch("/api/categories")
       .expect(405)
       .then(({ body }) => {
         expect(body.msg).toBe("Method Not Allowed");
       });
   });
+});
+
+describe.skip("/api/reviews/:review_id", () => {
+  it("200: returns an object with relevant properties related to review_id ", () => {});
 });
