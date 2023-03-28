@@ -76,6 +76,27 @@ describe("/api/reviews/:review_id", () => {
   });
 });
 
+describe.only("/api/reviews", () => {
+  it("200: returns array of review objects, sorted by date desc and including comment count ", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(13);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("comment_count", expect.any(String));
+        });
+        const reviewsCopy = [...reviews];
+        const sortedReviews = reviewsCopy.sort((reviewA, reviewB) => {
+          return parseInt(reviewB.created_at) - parseInt(reviewA.created_at);
+        });
+        expect(reviews).toEqual(sortedReviews);
+      });
+  });
+});
+
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
