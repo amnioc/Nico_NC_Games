@@ -5,6 +5,8 @@ const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
 
+//for path and method error handling, see bottom
+
 beforeEach(() => {
   return seed(testData);
 });
@@ -30,7 +32,6 @@ describe("/api/categories", () => {
         });
       });
   });
-  //error handling below
 });
 
 describe("/api/reviews/:review_id", () => {
@@ -111,6 +112,36 @@ describe("/api/reviews", () => {
   });
 });
 
+describe("/api/reviews/:review_id/comments", () => {
+  it("200: should return an array of comments for review_id in path", () => {
+    const testObj = {
+      comment_id: 4,
+      body: "EPIC board game!",
+      votes: 16,
+      author: "bainesface",
+      review_id: 2,
+      created_at: `2017-11-22T12:36:03.389Z`,
+    };
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviewComments } = body;
+        expect(reviewComments).toBeInstanceOf(Array);
+        expect(reviewComments).toHaveLength(3);
+        expect(reviewComments[2]).toEqual(testObj); //oldest comment of 3 in testData
+        reviewComments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("review_id", expect.any(Number));
+        });
+        expect(reviewComments).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+});
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)

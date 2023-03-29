@@ -4,6 +4,7 @@ const { getAllCategories } = require("./controllers/categories.controllers.js");
 const {
   getReviewById,
   getAllReviews,
+  getReviewComments,
 } = require("./controllers/reviews.controllers.js");
 const {
   error500Handler,
@@ -21,6 +22,7 @@ app.get("/api/reviews", getAllReviews);
 
 app.get("/api/reviews/:review_id", getReviewById);
 
+app.get("/api/reviews/:review_id/comments", getReviewComments);
 //error handling below
 app.use(SQLErrors);
 app.use(CustomErrors);
