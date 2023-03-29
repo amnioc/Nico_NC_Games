@@ -1,4 +1,5 @@
 const app = require("../app.js");
+const sorted = require("jest-sorted");
 const request = require("supertest");
 const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
@@ -86,13 +87,18 @@ describe("/api/reviews", () => {
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(13);
         reviews.forEach((review) => {
-          expect(review).toHaveProperty("comment_count", expect.any(String));
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("owner", expect.any(String));
+          expect(review).toHaveProperty("title", expect.any(String));
+          expect(review).toHaveProperty("category", expect.any(String));
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("votes", expect.any(Number));
+          expect(review).toHaveProperty("designer", expect.any(String));
         });
-        const reviewsCopy = [...reviews];
-        const sortedReviews = reviewsCopy.sort((reviewA, reviewB) => {
-          return parseInt(reviewB.created_at) - parseInt(reviewA.created_at);
-        });
-        expect(reviews).toEqual(sortedReviews);
+
+        expect(reviews).toBeSortedBy("created_at", { descending: true });
       });
   });
   it("404: returns `route does not exist` message for a mistyped path", () => {
@@ -106,7 +112,7 @@ describe("/api/reviews", () => {
 });
 
 describe("General Errors/Issues Handling", () => {
-  it.only('"404: returns a "route does not exist" message for mistyped path', () => {
+  it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
       .get("/api/catgories")
       .expect(404)
@@ -114,7 +120,7 @@ describe("General Errors/Issues Handling", () => {
         expect(body.msg).toBe("Route Does Not Exist");
       });
   });
-  it.only("405: returns a 'method not allowed' message for restricted paths", () => {
+  it("405: returns a 'method not allowed' message for restricted paths", () => {
     return request(app)
       .patch("/api/categories")
       .expect(405)
