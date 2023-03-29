@@ -16,10 +16,8 @@ function CustomErrors(err, req, res, next) {
 }
 
 function error500Handler(err, req, res, next) {
+  // console.log(err);
   res.status(500).send({ error: err });
 }
 
 module.exports = { error500Handler, SQLErrors, CustomErrors };
-
-//valid path but not allowed category - to be completed
-// res.status(405).send({ msg: "Method Not Allowed" });

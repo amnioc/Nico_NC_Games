@@ -31,13 +31,16 @@ Bear in mind, handling bad inputs from clients doesn't necessarily have to lead 
 
 ### GET `/not-a-route`
 
-- Status: ???
+- Status: 404 - does not exist
 
 ---
 
 ## Available Routes
 
 ### GET `/api/categories`
+
+404 - does not exist
+405 - method not allowed (TO BE ADDED)
 
 -
 
@@ -47,8 +50,8 @@ Bear in mind, handling bad inputs from clients doesn't necessarily have to lead 
 
 ### GET `/api/reviews/:review_id`
 
-- Bad `review_id` (e.g. `/dog`)
-- Well formed `review_id` that doesn't exist in the database (e.g. `/999999`)
+- 400 - Bad `review_id` (e.g. `/dog`)
+- 404 - Well formed `review_id` that doesn't exist in the database (e.g. `/999999`)
 
 ### PATCH `/api/reviews/:review_id`
 
@@ -62,9 +65,17 @@ Bear in mind, handling bad inputs from clients doesn't necessarily have to lead 
 
 ### GET `/api/reviews/:review_id/comments`
 
+404 - typo in path
+400 - review id incorrect data type
+404 - valid id but does not exist
+405 method not allowed
+
 -
 
 ### GET `/api/reviews`
+
+404 - typo in path
+405 - bad method (TO BE COMPLETED)
 
 - Bad queries:
   - `sort_by` a column that doesn't exist
