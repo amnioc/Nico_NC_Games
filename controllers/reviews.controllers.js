@@ -16,10 +16,11 @@ exports.getReviewById = (req, res, next) => {
 };
 
 exports.getAllReviews = (req, res, next) => {
-  fetchAllReviews().then((reviews) => {
-    res.status(200).send({ reviews });
-  });
-  // .catch((err) => {
-  //   next(err);
-  // });
+  fetchAllReviews()
+    .then((reviews) => {
+      res.status(200).send({ reviews });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

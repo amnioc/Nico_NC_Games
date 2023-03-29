@@ -76,7 +76,7 @@ describe("/api/reviews/:review_id", () => {
   });
 });
 
-describe.only("/api/reviews", () => {
+describe("/api/reviews", () => {
   it("200: returns array of review objects, sorted by date desc and including comment count ", () => {
     return request(app)
       .get("/api/reviews")
@@ -95,10 +95,18 @@ describe.only("/api/reviews", () => {
         expect(reviews).toEqual(sortedReviews);
       });
   });
+  it("404: returns `route does not exist` message for a mistyped path", () => {
+    return request(app)
+      .get("/api/allreviews")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Route Does Not Exist");
+      });
+  });
 });
 
 describe("General Errors/Issues Handling", () => {
-  it('"404: returns a "route does not exist" message for mistyped path', () => {
+  it.only('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
       .get("/api/catgories")
       .expect(404)
@@ -106,7 +114,7 @@ describe("General Errors/Issues Handling", () => {
         expect(body.msg).toBe("Route Does Not Exist");
       });
   });
-  it.skip("405: returns a 'method not allowed' message for restricted paths", () => {
+  it.only("405: returns a 'method not allowed' message for restricted paths", () => {
     return request(app)
       .patch("/api/categories")
       .expect(405)
