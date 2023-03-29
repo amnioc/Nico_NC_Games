@@ -59,12 +59,12 @@ describe("/api/reviews/:review_id", () => {
       });
   });
 
-  it('400: should return "invalid data-type" for non-numerical review ID', () => {
+  it('400: should return "invalid data-format" for non-numerical review ID', () => {
     return request(app)
       .get("/api/reviews/Jenga")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid Data Format");
+        expect(body.msg).toBe("Invalid Data Format for ID");
       });
   });
 
@@ -141,6 +141,30 @@ describe("/api/reviews/:review_id/comments", () => {
         expect(reviewComments).toBeSortedBy("created_at", { descending: true });
       });
   });
+  it('400: should return "invalid data format for review_id" message for incorrect data type', () => {
+    return request(app)
+      .get("/api/reviews/Jenga/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Format for ID");
+      });
+  });
+  it("404: review does not exist. Returns error message", () => {
+    return request(app)
+      .get("/api/reviews/123/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review Does Not Exist, Yet.");
+      });
+  });
+  it("405: returns Method Not Allowed message for DELETE path", () => {
+    return request(app)
+      .delete("/api/reviews/1/comments")
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Method Not Allowed!");
+      });
+  });
 });
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
@@ -156,7 +180,7 @@ describe("General Errors/Issues Handling", () => {
       .patch("/api/categories")
       .expect(405)
       .then(({ body }) => {
-        expect(body.msg).toBe("Method Not Allowed");
+        expect(body.msg).toBe("Method Not Allowed!");
       });
   });
 });

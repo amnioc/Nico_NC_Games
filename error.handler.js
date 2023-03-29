@@ -4,7 +4,7 @@ const app = require("./app.js");
 //mop-up errors
 function SQLErrors(err, req, res, next) {
   if (err.code === "22P02") {
-    res.status(400).send({ msg: "Invalid Data Format" });
+    res.status(400).send({ msg: "Invalid Data Format for ID" });
   }
   next(err);
 }
