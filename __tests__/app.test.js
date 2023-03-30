@@ -136,7 +136,7 @@ describe("/api/reviews/:review_id/comments", () => {
           expect(comment).toHaveProperty("created_at", expect.any(String));
           expect(comment).toHaveProperty("author", expect.any(String));
           expect(comment).toHaveProperty("body", expect.any(String));
-          expect(comment).toHaveProperty("review_id", expect.any(Number));
+          expect(comment).toHaveProperty("review_id", 2);
         });
         expect(reviewComments).toBeSortedBy("created_at", { descending: true });
       });
