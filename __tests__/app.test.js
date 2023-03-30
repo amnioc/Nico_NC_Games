@@ -177,14 +177,17 @@ describe("GET /api/reviews/:review_id/comments", () => {
   });
 });
 
-describe.only("POST /api/reviews/:review_id/comments", () => {
-  it("201: returns the new comment inserted", () => {
+describe("POST /api/reviews/:review_id/comments", () => {
+  it("201: returns the new comment inserted, for current user", () => {
     const testComment = {
-      username: "BoardGamesRLife",
+      username: "mallionaire",
       body: "lots of social deduction!",
     };
 
-    const expectedResponse = { comment_added: "lots of social deduction!" };
+    const expectedResponse = {
+      author: "mallionaire",
+      comment_added: "lots of social deduction!",
+    };
 
     return request(app)
       .post("/api/reviews/5/comments")
@@ -195,7 +198,40 @@ describe.only("POST /api/reviews/:review_id/comments", () => {
         expect(response.body.comment).toHaveProperty("comment_added");
       });
   });
-  it("400: returns 'Missing Information' alert for required fields when INSERT INTO comments", () => {});
+  it("400: returns 'User Does Not Exist' alert for username not in table", () => {
+    const testComment = { username: "SpamBot", body: "This game sucks!" };
+    return request(app)
+      .post("/api/reviews/5/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User Does Not Exist.");
+      });
+  });
+  it("400: returns 'Missing Required Information' alert for null values in required fields", () => {
+    const testComment = { username: "mallionaire", body: undefined };
+    return request(app)
+      .post("/api/reviews/5/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Information Required");
+      });
+  });
+  it('400: should return "invalid data format for review_id" message for incorrect data type', () => {
+    const testComment = {
+      username: "mallionaire",
+      body: "lots of fun!",
+    };
+
+    return request(app)
+      .post("/api/reviews/Jenga/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Format for ID");
+      });
+  });
 });
 
 describe("General Errors/Issues Handling", () => {

@@ -5,11 +5,15 @@ exports.checkUserExists = (username) => {
     .query(`SELECT * FROM users WHERE username = $1;`, [username])
     .then((result) => {
       if (result.rowCount === 0) {
-        return db.query(`INSERT INTO users (username, name) VALUES ($1, $2);`, [
-          username,
-          "NameTBC",
-        ]);
+        return Promise.reject({
+          status: 400,
+          msg: "User Does Not Exist.",
+        });
       }
-      console.log("user exists!");
     });
 };
+
+// return db.query(`INSERT INTO users (username, name) VALUES ($1, $2);`, [
+//   username,
+//   "NameTBC",
+// ]);
