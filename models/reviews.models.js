@@ -1,4 +1,5 @@
 const db = require("../db/connection.js");
+const { formatComments } = require("../db/seeds/utils.js");
 
 exports.fetchReviewById = (review_id) => {
   return db
@@ -45,5 +46,17 @@ exports.checkReviewExists = (id) => {
           msg: "Review Does Not Exist, Yet.",
         });
       }
+    });
+};
+
+exports.insertReviewComment = (newComment, review_id) => {
+  const { username, body } = newComment;
+  return db
+    .query(
+      `INSERT INTO comments (author, body, review_id) VALUES ($1, $2, $3) RETURNING body AS Comment_Added;`,
+      [username, body, review_id]
+    )
+    .then((result) => {
+      return result.rows[0];
     });
 };
