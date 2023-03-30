@@ -165,6 +165,15 @@ describe("/api/reviews/:review_id/comments", () => {
         expect(body.msg).toBe("Method Not Allowed!");
       });
   });
+  it("200: No Comments - Returns empty array of comments for present review_id", () => {
+    return request(app)
+      .get("/api/reviews/5/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviewComments } = body;
+        expect(reviewComments).toEqual([]);
+      });
+  });
 });
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
