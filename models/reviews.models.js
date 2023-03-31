@@ -61,6 +61,13 @@ exports.insertReviewComment = (newComment, review_id) => {
 };
 
 exports.changeReviewVotes = (inc_votes, review_id) => {
+  if (!inc_votes) {
+    return Promise.reject({
+      status: 400,
+      msg: "No Votes Provided",
+    });
+  }
+
   return db
     .query(
       "UPDATE reviews SET votes = (votes + $1) WHERE review_id = $2 RETURNING *;",

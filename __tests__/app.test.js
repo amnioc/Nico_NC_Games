@@ -109,7 +109,7 @@ describe("GET /api/reviews", () => {
       .get("/api/allreviews")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Route Does Not Exist");
+        expect(body.msg).toBe("URL Does Not Exist or Method Not Allowed");
       });
   });
 });
@@ -162,9 +162,9 @@ describe("GET /api/reviews/:review_id/comments", () => {
   it("405: returns Method Not Allowed message for DELETE path", () => {
     return request(app)
       .delete("/api/reviews/1/comments")
-      .expect(405)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Method Not Allowed!");
+        expect(body.msg).toBe("URL Does Not Exist or Method Not Allowed");
       });
   });
   it("200: No Comments - Returns empty array of comments for present review_id", () => {
@@ -251,20 +251,8 @@ describe("POST /api/reviews/:review_id/comments", () => {
 });
 
 describe("PATCH /api/reviews/:review_id", () => {
-  it("200: should amend review votes by number provided in incVotes object", () => {
+  it("200: should return full review with updated votes by number provided in incVotes object", () => {
     const testIncVotes = { inc_votes: 10 };
-
-    const testOriginalReview = {
-      title: "Ultimate Werewolf",
-      designer: "Akihisa Okui",
-      owner: "bainesface",
-      review_img_url:
-        "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?w=700&h=700",
-      review_body: "We couldn't find the werewolf!",
-      category: "social deduction",
-      created_at: new Date(1610964101251),
-      votes: 5,
-    };
 
     return request(app)
       .patch("/api/reviews/3")
@@ -273,7 +261,25 @@ describe("PATCH /api/reviews/:review_id", () => {
       .then((response) => {
         const { review } = response.body;
         expect(review).toBeInstanceOf(Object);
+        expect(review).toHaveProperty("review_id", 3);
+        expect(review).toHaveProperty("title", expect.any(String));
+        expect(review).toHaveProperty("designer", expect.any(String));
+        expect(review).toHaveProperty("owner", expect.any(String));
+        expect(review).toHaveProperty("review_img_url", expect.any(String));
+        expect(review).toHaveProperty("review_body", expect.any(String));
+        expect(review).toHaveProperty("category", expect.any(String));
+        expect(review).toHaveProperty("created_at", expect.any(String));
+        expect(review).toHaveProperty("votes", 15);
         expect(review.votes).toBe(15);
+      });
+  });
+  it("400: returns error message if incVotes key is missing/null", () => {
+    return request(app)
+      .patch("/api/reviews/4")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No Votes Provided");
       });
   });
   it('404: should return "Review Does Not Exist, Yet" for attempt to patch reviewID not in table', () => {
@@ -284,6 +290,17 @@ describe("PATCH /api/reviews/:review_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Review Does Not Exist, Yet.");
+      });
+  });
+  it('400: should return "Invalid ID" for non numerical review_id', () => {
+    const testIncVotes = { inc_votes: "10" };
+
+    return request(app)
+      .patch("/api/reviews/Jenga")
+      .send(testIncVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
       });
   });
   it('400: should return "Invalid Data Type Used" for invalid votes data format', () => {
@@ -304,10 +321,10 @@ describe("General Errors/Issues Handling", () => {
       .get("/api/catgories")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Route Does Not Exist");
+        expect(body.msg).toBe("URL Does Not Exist or Method Not Allowed");
       });
   });
-  it("405: returns a 'method not allowed' message for restricted paths", () => {
+  it("405: returns a 'method not allowed' message for restricted simple paths", () => {
     return request(app)
       .delete("/api/categories")
       .expect(405)

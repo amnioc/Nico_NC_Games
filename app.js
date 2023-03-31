@@ -12,12 +12,11 @@ const {
   error500Handler,
   SQLErrors,
   CustomErrors,
+  incorrectRequestHandler,
 } = require("./error.handler.js");
 module.exports = app;
 
 app.use(express.json());
-
-const permittedMethods = ["GET", "POST", "PATCH"];
 
 //returns categories with slug and desc
 app.get("/api/categories", getAllCategories);
@@ -37,10 +36,12 @@ app.use(SQLErrors);
 app.use(CustomErrors);
 app.use(error500Handler);
 
-//any non-existent paths
+const ValidPaths = ["/api/categories", "/api/reviews"];
+
+//for methods/paths not listed
 app.use("*", (req, res, next) => {
-  if (permittedMethods.includes(req.method) === false) {
+  if (ValidPaths.includes(req.originalUrl) === true) {
     res.status(405).send({ msg: "Method Not Allowed!" });
   }
-  res.status(404).send({ msg: "Route Does Not Exist" });
+  res.status(404).send({ msg: "URL Does Not Exist or Method Not Allowed" });
 });
