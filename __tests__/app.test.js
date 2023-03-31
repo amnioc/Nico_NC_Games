@@ -413,7 +413,6 @@ describe("QUERIES /api/reviews", () => {
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
-        console.log(reviews);
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(13);
       });
