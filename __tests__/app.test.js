@@ -66,7 +66,7 @@ describe("GET /api/reviews/:review_id", () => {
       .get("/api/reviews/Jenga")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid Data Format for ID");
+        expect(body.msg).toBe("Invalid Data Type Used");
       });
   });
 
@@ -143,12 +143,12 @@ describe("GET /api/reviews/:review_id/comments", () => {
         expect(reviewComments).toBeSortedBy("created_at", { descending: true });
       });
   });
-  it('400: should return "invalid data format for review_id" message for incorrect data type', () => {
+  it('400: should return "Invalid Data Type Used" message for incorrect data type', () => {
     return request(app)
       .get("/api/reviews/Jenga/comments")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid Data Format for ID");
+        expect(body.msg).toBe("Invalid Data Type Used");
       });
   });
   it("404: review does not exist. Returns error message", () => {
@@ -234,7 +234,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
         expect(body.msg).toBe("Missing Information Required");
       });
   });
-  it('400: should return "invalid data format for review_id" message for incorrect data type', () => {
+  it('400: should return "Invalid Data Type Used" message for incorrect data type', () => {
     const testComment = {
       username: "mallionaire",
       body: "lots of fun!",
@@ -245,7 +245,55 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .send(testComment)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid Data Format for ID");
+        expect(body.msg).toBe("Invalid Data Type Used");
+      });
+  });
+});
+
+describe("PATCH /api/reviews/:review_id", () => {
+  it("200: should amend review votes by number provided in incVotes object", () => {
+    const testIncVotes = { inc_votes: 10 };
+
+    const testOriginalReview = {
+      title: "Ultimate Werewolf",
+      designer: "Akihisa Okui",
+      owner: "bainesface",
+      review_img_url:
+        "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?w=700&h=700",
+      review_body: "We couldn't find the werewolf!",
+      category: "social deduction",
+      created_at: new Date(1610964101251),
+      votes: 5,
+    };
+
+    return request(app)
+      .patch("/api/reviews/3")
+      .send(testIncVotes)
+      .expect(200)
+      .then((response) => {
+        const { review } = response.body;
+        expect(review).toBeInstanceOf(Object);
+        expect(review.votes).toBe(15);
+      });
+  });
+  it('404: should return "Review Does Not Exist, Yet" for attempt to patch reviewID not in table', () => {
+    const testIncVotes = { inc_votes: "10" };
+    return request(app)
+      .patch("/api/reviews/200")
+      .send(testIncVotes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review Does Not Exist, Yet.");
+      });
+  });
+  it('400: should return "Invalid Data Type Used" for invalid votes data format', () => {
+    const testIncVotes = { inc_votes: "Ten" };
+    return request(app)
+      .patch("/api/reviews/4")
+      .send(testIncVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
       });
   });
 });
@@ -261,7 +309,7 @@ describe("General Errors/Issues Handling", () => {
   });
   it("405: returns a 'method not allowed' message for restricted paths", () => {
     return request(app)
-      .patch("/api/categories")
+      .delete("/api/categories")
       .expect(405)
       .then(({ body }) => {
         expect(body.msg).toBe("Method Not Allowed!");
