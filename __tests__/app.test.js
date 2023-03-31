@@ -351,6 +351,40 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  it("200: returns array of users, each user is object with username, name and avatar_url key", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toBeInstanceOf(Array);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toHaveProperty("username", expect.any(String));
+          expect(user).toHaveProperty("name", expect.any(String));
+          expect(user).toHaveProperty("avatar_url", expect.any(String));
+        });
+      });
+  });
+  it("404: returns `URL does not exist` message for a mistyped path", () => {
+    return request(app)
+      .get("/api/uuuuusers")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("URL Does Not Exist or Method Not Allowed");
+      });
+  });
+  it("405: returns `Method Not Allowed` message for a wrong method on this path", () => {
+    return request(app)
+      .delete("/api/users")
+      .expect(405)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Method Not Allowed!");
+      });
+  });
+});
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
