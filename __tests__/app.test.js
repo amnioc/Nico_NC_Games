@@ -5,6 +5,7 @@ const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
 const { formatComments } = require("../db/seeds/utils.js");
+const { convertTimestampToDate } = require("../db/seeds/utils.js");
 
 //for path and method error handling, see bottom
 
@@ -184,18 +185,33 @@ describe("POST /api/reviews/:review_id/comments", () => {
       body: "lots of social deduction!",
     };
 
-    const expectedResponse = {
-      author: "mallionaire",
-      comment_added: "lots of social deduction!",
-    };
-
     return request(app)
       .post("/api/reviews/5/comments")
       .send(testComment)
       .expect(201)
       .then((response) => {
-        expect(response.body.comment).toEqual(expectedResponse);
-        expect(response.body.comment).toHaveProperty("comment_added");
+        expect(response.body).toBeInstanceOf(Object);
+        expect(response.body.comment).toHaveProperty(
+          "body",
+          expect.any(String)
+        );
+        expect(response.body.comment).toHaveProperty(
+          "author",
+          expect.any(String)
+        );
+        expect(response.body.comment).toHaveProperty(
+          "votes",
+          expect.any(Number)
+        );
+        expect(response.body.comment).toHaveProperty("review_id", 5);
+        expect(response.body.comment).toHaveProperty(
+          "comment_id",
+          expect.any(Number)
+        );
+        expect(response.body.comment).toHaveProperty(
+          "created_at",
+          expect.any(String)
+        );
       });
   });
   it("400: returns 'User Does Not Exist' alert for username not in table", () => {
