@@ -385,6 +385,40 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("QUERIES /api/reviews", () => {
+  it("200: returns reviews with Category specified in query ", () => {
+    return request(app)
+      .get("/api/reviews?category=dexterity")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toHaveLength(1);
+        reviews.forEach((review) => {
+          expect(review.category).toBe("dexterity");
+        });
+      });
+  });
+  it('404: responds "Category Does Not Exist" for valid category data type not in categories table', () => {
+    return request(app)
+      .get("/api/reviews?category=120")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Category Does Not Exist.");
+      });
+  });
+  it("200: responds with array of ALL revieews if query is ommited/blank", () => {
+    return request(app)
+      .get("/api/reviews?category=")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        console.log(reviews);
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(13);
+      });
+  });
+});
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
