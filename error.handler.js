@@ -19,7 +19,7 @@ function CustomErrors(err, req, res, next) {
 }
 
 function error500Handler(err, req, res, next) {
-  console.log(err);
+  // console.log(err);
   res.status(500).send({ error: err });
 }
 

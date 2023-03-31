@@ -1,11 +1,13 @@
 const app = require("../app.js");
 const sorted = require("jest-sorted");
 const request = require("supertest");
+const db = require("../db/connection.js");
 const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
 const { formatComments } = require("../db/seeds/utils.js");
 const { convertTimestampToDate } = require("../db/seeds/utils.js");
+const { getReviewComments } = require("../controllers/reviews.controllers.js");
 
 //for path and method error handling, see bottom
 
@@ -317,11 +319,19 @@ describe("PATCH /api/reviews/:review_id", () => {
 
 describe("DELETE /api/comments/:comment_id", () => {
   it("204: should delete comment by ID and return No Content to Client", () => {
+    const testFunc = (comment_id) => {
+      return db
+        .query(`SELECT * FROM comments WHERE comment_id = $1;`, [comment_id])
+        .then((result) => result.rows);
+    };
+
     return request(app)
       .delete("/api/comments/2")
       .expect(204)
       .then((response) => {
         expect(response.body).toEqual({});
+        //testFunction result has 0 values
+        expect(Object.values(testFunc(2))).toHaveLength(0);
       });
   });
   it('404: returns "Comment Does Not Exist, Yet." for delete request for commend_id not in table', () => {
@@ -330,6 +340,14 @@ describe("DELETE /api/comments/:comment_id", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Comment Does Not Exist, Yet.");
+      });
+  });
+  it('400: should return "Invalid Data Type Used" for non numerical comment_id', () => {
+    return request(app)
+      .delete("/api/comments/commentone")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
       });
   });
 });
