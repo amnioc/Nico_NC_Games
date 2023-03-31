@@ -5,6 +5,7 @@ const {
   getReviewById,
   getAllReviews,
   getReviewComments,
+  addReviewComment,
 } = require("./controllers/reviews.controllers.js");
 const {
   error500Handler,
@@ -13,7 +14,9 @@ const {
 } = require("./error.handler.js");
 module.exports = app;
 
-const permittedMethods = ["GET"];
+app.use(express.json());
+
+const permittedMethods = ["GET", "POST"];
 
 //returns categories with slug and desc
 app.get("/api/categories", getAllCategories);
@@ -21,6 +24,8 @@ app.get("/api/categories", getAllCategories);
 app.get("/api/reviews", getAllReviews);
 
 app.get("/api/reviews/:review_id", getReviewById);
+
+app.post("/api/reviews/:review_id/comments", addReviewComment);
 
 app.get("/api/reviews/:review_id/comments", getReviewComments);
 //error handling below

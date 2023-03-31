@@ -5,8 +5,11 @@ const app = require("./app.js");
 function SQLErrors(err, req, res, next) {
   if (err.code === "22P02") {
     res.status(400).send({ msg: "Invalid Data Format for ID" });
+  } else if (err.code === "23502") {
+    res.status(400).send({ msg: "Missing Information Required" });
+  } else {
+    next(err);
   }
-  next(err);
 }
 function CustomErrors(err, req, res, next) {
   if (err.status && err.msg) {
@@ -17,6 +20,7 @@ function CustomErrors(err, req, res, next) {
 
 function error500Handler(err, req, res, next) {
   console.log(err);
+
   res.status(500).send({ error: err });
 }
 

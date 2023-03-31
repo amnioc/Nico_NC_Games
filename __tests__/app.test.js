@@ -4,6 +4,8 @@ const request = require("supertest");
 const seed = require("../db/seeds/seed.js");
 const connection = require("../db/connection.js");
 const testData = require("../db/data/test-data/index.js");
+const { formatComments } = require("../db/seeds/utils.js");
+const { convertTimestampToDate } = require("../db/seeds/utils.js");
 
 //for path and method error handling, see bottom
 
@@ -15,7 +17,7 @@ afterAll(() => {
   return connection.end();
 });
 
-describe("/api/categories", () => {
+describe("GET /api/categories", () => {
   it("200: should return array of category object with slug and description keys", () => {
     return request(app)
       .get("/api/categories")
@@ -34,7 +36,7 @@ describe("/api/categories", () => {
   });
 });
 
-describe("/api/reviews/:review_id", () => {
+describe("GET /api/reviews/:review_id", () => {
   it("200: returns an object with relevant properties related to review_id ", () => {
     const testObj = {
       review_id: 2,
@@ -78,7 +80,7 @@ describe("/api/reviews/:review_id", () => {
   });
 });
 
-describe("/api/reviews", () => {
+describe("GET /api/reviews", () => {
   it("200: returns array of review objects, sorted by date desc and including comment count ", () => {
     return request(app)
       .get("/api/reviews")
@@ -112,7 +114,7 @@ describe("/api/reviews", () => {
   });
 });
 
-describe("/api/reviews/:review_id/comments", () => {
+describe("GET /api/reviews/:review_id/comments", () => {
   it("200: should return an array of comments for review_id in path", () => {
     const testObj = {
       comment_id: 4,
@@ -175,6 +177,79 @@ describe("/api/reviews/:review_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/reviews/:review_id/comments", () => {
+  it("201: returns the new comment inserted, for current user", () => {
+    const testComment = {
+      username: "mallionaire",
+      body: "lots of social deduction!",
+    };
+
+    return request(app)
+      .post("/api/reviews/5/comments")
+      .send(testComment)
+      .expect(201)
+      .then((response) => {
+        expect(response.body).toBeInstanceOf(Object);
+        expect(response.body.comment).toHaveProperty(
+          "body",
+          expect.any(String)
+        );
+        expect(response.body.comment).toHaveProperty(
+          "author",
+          expect.any(String)
+        );
+        expect(response.body.comment).toHaveProperty(
+          "votes",
+          expect.any(Number)
+        );
+        expect(response.body.comment).toHaveProperty("review_id", 5);
+        expect(response.body.comment).toHaveProperty(
+          "comment_id",
+          expect.any(Number)
+        );
+        expect(response.body.comment).toHaveProperty(
+          "created_at",
+          expect.any(String)
+        );
+      });
+  });
+  it("400: returns 'User Does Not Exist' alert for username not in table", () => {
+    const testComment = { username: "SpamBot", body: "This game sucks!" };
+    return request(app)
+      .post("/api/reviews/5/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User Does Not Exist.");
+      });
+  });
+  it("400: returns 'Missing Required Information' alert for null values in required fields", () => {
+    const testComment = { username: "mallionaire", body: undefined };
+    return request(app)
+      .post("/api/reviews/5/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Information Required");
+      });
+  });
+  it('400: should return "invalid data format for review_id" message for incorrect data type', () => {
+    const testComment = {
+      username: "mallionaire",
+      body: "lots of fun!",
+    };
+
+    return request(app)
+      .post("/api/reviews/Jenga/comments")
+      .send(testComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Format for ID");
+      });
+  });
+});
+
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
