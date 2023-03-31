@@ -1,5 +1,4 @@
 const db = require("../db/connection.js");
-const { formatComments } = require("../db/seeds/utils.js");
 
 exports.fetchReviewById = (review_id) => {
   return db
@@ -55,6 +54,24 @@ exports.insertReviewComment = (newComment, review_id) => {
     .query(
       `INSERT INTO comments (author, body, review_id) VALUES ($1, $2, $3) RETURNING *`,
       [username, body, review_id]
+    )
+    .then((result) => {
+      return result.rows[0];
+    });
+};
+
+exports.changeReviewVotes = (inc_votes, review_id) => {
+  if (!inc_votes) {
+    return Promise.reject({
+      status: 400,
+      msg: "No Votes Provided",
+    });
+  }
+
+  return db
+    .query(
+      "UPDATE reviews SET votes = (votes + $1) WHERE review_id = $2 RETURNING *;",
+      [inc_votes, review_id]
     )
     .then((result) => {
       return result.rows[0];

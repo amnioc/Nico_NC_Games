@@ -4,6 +4,7 @@ const {
   fetchReviewComments,
   checkReviewExists,
   insertReviewComment,
+  changeReviewVotes,
 } = require("../models/reviews.models.js");
 const { checkUserExists } = require("../models/users.models.js");
 
@@ -57,6 +58,25 @@ exports.addReviewComment = (req, res, next) => {
     })
     .then((comment) => {
       res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.updateReviewVotes = (req, res, next) => {
+  const { review_id } = req.params;
+  const incVotes = req.body;
+  const { inc_votes } = incVotes; //number to change by
+
+  const reviewPromises = [
+    changeReviewVotes(inc_votes, review_id),
+    checkReviewExists(review_id),
+  ];
+
+  Promise.all(reviewPromises)
+    .then(([review]) => {
+      res.status(200).send({ review });
     })
     .catch((err) => {
       next(err);
