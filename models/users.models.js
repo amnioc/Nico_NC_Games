@@ -13,7 +13,8 @@ exports.checkUserExists = (username) => {
     });
 };
 
-// return db.query(`INSERT INTO users (username, name) VALUES ($1, $2);`, [
-//   username,
-//   "NameTBC",
-// ]);
+exports.fetchAllUsers = () => {
+  return db.query(`SELECT * FROM users`).then((result) => {
+    return result.rows;
+  });
+};

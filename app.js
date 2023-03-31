@@ -15,6 +15,7 @@ const {
   incorrectRequestHandler,
 } = require("./error.handler.js");
 const { removeCommentById } = require("./controllers/comments.controllers.js");
+const { getAllUsers } = require("./controllers/users.controllers.js");
 module.exports = app;
 
 app.use(express.json());
@@ -33,12 +34,15 @@ app.post("/api/reviews/:review_id/comments", addReviewComment);
 app.get("/api/reviews/:review_id/comments", getReviewComments);
 
 app.delete("/api/comments/:comment_id", removeCommentById);
+
+app.get("/api/users", getAllUsers);
+
 //error handling below
 app.use(SQLErrors);
 app.use(CustomErrors);
 app.use(error500Handler);
 
-const ValidPaths = ["/api/categories", "/api/reviews"];
+const ValidPaths = ["/api/categories", "/api/reviews", "/api/users"];
 
 //for methods/paths not listed
 app.use("*", (req, res, next) => {
