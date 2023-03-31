@@ -315,6 +315,24 @@ describe("PATCH /api/reviews/:review_id", () => {
   });
 });
 
+describe("DELETE /api/comments/:comment_id", () => {
+  it("204: should delete comment by ID and return No Content to Client", () => {
+    return request(app)
+      .delete("/api/comments/2")
+      .expect(204)
+      .then((response) => {
+        expect(response.body).toEqual({});
+      });
+  });
+  it('404: returns "Comment Does Not Exist, Yet." for delete request for commend_id not in table', () => {
+    return request(app)
+      .delete("/api/comments/200")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment Does Not Exist, Yet.");
+      });
+  });
+});
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)

@@ -14,6 +14,7 @@ const {
   CustomErrors,
   incorrectRequestHandler,
 } = require("./error.handler.js");
+const { removeCommentById } = require("./controllers/comments.controllers.js");
 module.exports = app;
 
 app.use(express.json());
@@ -31,6 +32,7 @@ app.post("/api/reviews/:review_id/comments", addReviewComment);
 
 app.get("/api/reviews/:review_id/comments", getReviewComments);
 
+app.delete("/api/comments/:comment_id", removeCommentById);
 //error handling below
 app.use(SQLErrors);
 app.use(CustomErrors);
