@@ -386,7 +386,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe("QUERIES /api/reviews", () => {
+describe("QUERIES CATEGORY /api/reviews", () => {
   it("200: returns reviews with Category specified in query ", () => {
     return request(app)
       .get("/api/reviews?category=dexterity")
@@ -415,6 +415,57 @@ describe("QUERIES /api/reviews", () => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(13);
+      });
+  });
+});
+
+describe("SORT BY in /api/reviews", () => {
+  it("200: sorts reviews returned by valid column", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=category")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toHaveLength(13);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("owner", expect.any(String));
+          expect(review).toHaveProperty("title", expect.any(String));
+          expect(review).toHaveProperty("category", expect.any(String));
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("votes", expect.any(Number));
+          expect(review).toHaveProperty("designer", expect.any(String));
+        });
+        expect(reviews).toBeSortedBy("category", { ascending: true }); //ascending is default
+      });
+  });
+  it("200: sorts reviews by date when no sort_by column given", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(13);
+        expect(reviews).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  it('400: returns "invalid sort query" for a column that is not permitted/possible', () => {
+    return request(app)
+      .get("/api/reviews?sort_by=review_img_url")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Sort Query");
+      });
+  });
+  it('400: returns "invalid sort query" for a invalid data type in sort-by request', () => {
+    return request(app)
+      .get("/api/reviews?sort_by=C4T3G0RY")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Sort Query");
       });
   });
 });

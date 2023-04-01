@@ -22,9 +22,9 @@ exports.getReviewById = (req, res, next) => {
 };
 
 exports.getAllReviews = (req, res, next) => {
-  const { category } = req.query;
+  const { category, sort_by } = req.query;
 
-  const allReviewsPromises = [fetchAllReviews(category)];
+  const allReviewsPromises = [fetchAllReviews(category, sort_by)];
   if (category) {
     allReviewsPromises.push(checkCategoryExists(category));
   }
