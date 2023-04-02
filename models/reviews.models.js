@@ -18,24 +18,26 @@ exports.fetchAllReviews = (category, sort_by, order) => {
   let selectReviewsString = `SELECT reviews.review_id, reviews.owner, reviews.title, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, CAST(COUNT(comments.review_id) AS int) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id`;
   const queryParameters = [];
 
+  if (
+    sort_by &&
+    ![
+      "review_id",
+      "owner",
+      "title",
+      "category",
+      "created_at",
+      "votes",
+      "designer",
+      "comment_count",
+    ].includes(sort_by)
+  ) {
+    return Promise.reject({ status: 400, msg: "Invalid Sort Query" });
+  }
+
   if (category) {
     selectReviewsString += ` WHERE reviews.category = $1`;
     queryParameters.push(category);
   } else if (sort_by) {
-    if (
-      ![
-        "review_id",
-        "owner",
-        "title",
-        "category",
-        "created_at",
-        "votes",
-        "designer",
-        "comment_count",
-      ].includes(sort_by)
-    ) {
-      return Promise.reject({ status: 400, msg: "Invalid Sort Query" });
-    }
     selectReviewsString += ` GROUP BY reviews.review_id ORDER BY reviews.${sort_by}`;
 
     if (order === "asc") {
