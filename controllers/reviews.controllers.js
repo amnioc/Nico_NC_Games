@@ -1,3 +1,4 @@
+const { checkCategoryExists } = require("../models/categories.models.js");
 const {
   fetchReviewById,
   fetchAllReviews,
@@ -21,8 +22,14 @@ exports.getReviewById = (req, res, next) => {
 };
 
 exports.getAllReviews = (req, res, next) => {
-  fetchAllReviews()
-    .then((reviews) => {
+  const { category, sort_by, order } = req.query;
+  const allReviewsPromises = [fetchAllReviews(category, sort_by, order)];
+  if (category) {
+    allReviewsPromises.push(checkCategoryExists(category));
+  }
+
+  Promise.all(allReviewsPromises)
+    .then(([reviews]) => {
       res.status(200).send({ reviews });
     })
     .catch((err) => {
