@@ -438,7 +438,7 @@ describe("SORT BY in /api/reviews", () => {
           expect(review).toHaveProperty("votes", expect.any(Number));
           expect(review).toHaveProperty("designer", expect.any(String));
         });
-        expect(reviews).toBeSortedBy("category", { ascending: true }); //ascending is default
+        expect(reviews).toBeSortedBy("category", { descending: true }); //descending is default
       });
   });
   it("200: sorts reviews by date when no sort_by column given", () => {
@@ -452,7 +452,7 @@ describe("SORT BY in /api/reviews", () => {
         expect(reviews).toBeSortedBy("created_at", { descending: true });
       });
   });
-  it('400: returns "invalid sort query" for a column that is not permitted/possible', () => {
+  it('400: returns "invalid sort query" for a valid column that is not permitted/possible', () => {
     return request(app)
       .get("/api/reviews?sort_by=review_img_url")
       .expect(400)
@@ -460,7 +460,7 @@ describe("SORT BY in /api/reviews", () => {
         expect(body.msg).toBe("Invalid Sort Query");
       });
   });
-  it('400: returns "invalid sort query" for a invalid data type in sort-by request', () => {
+  it('400: returns "invalid sort query" for invalid data type in sort-by request', () => {
     return request(app)
       .get("/api/reviews?sort_by=C4T3G0RY")
       .expect(400)
@@ -469,6 +469,50 @@ describe("SORT BY in /api/reviews", () => {
       });
   });
 });
+
+describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
+  it("200: returns array of reviews in ascending order for specified colum", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=category&&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(13);
+        expect(reviews).toBeSortedBy("category", { ascending: true });
+      });
+  });
+  it("200: returns array of reviews in default of descending order when no order parameter present", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=review_id")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toHaveLength(13);
+        expect(reviews).toBeSortedBy("review_id", { descending: true });
+      });
+  });
+  it("200: default to reviews ordered by created_at, descending, when no sort_by or order parameters", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(13);
+        expect(reviews).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  it('400: returns "Invalid Sort Query" when order provided invalid data-type', () => {
+    return request(app)
+      .get("/api/reviews?sort_by=categories&&order=12")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Sort Query");
+      });
+  });
+});
+
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)

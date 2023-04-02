@@ -14,7 +14,7 @@ exports.fetchReviewById = (review_id) => {
     });
 };
 
-exports.fetchAllReviews = (category, sort_by) => {
+exports.fetchAllReviews = (category, sort_by, order) => {
   let selectReviewsString = `SELECT reviews.review_id, reviews.owner, reviews.title, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, CAST(COUNT(comments.review_id) AS int) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id`;
   const queryParameters = [];
 
@@ -36,7 +36,11 @@ exports.fetchAllReviews = (category, sort_by) => {
     ) {
       return Promise.reject({ status: 400, msg: "Invalid Sort Query" });
     }
-    selectReviewsString += ` GROUP BY reviews.review_id ORDER BY reviews.${sort_by};`;
+    selectReviewsString += ` GROUP BY reviews.review_id ORDER BY reviews.${sort_by}`;
+
+    if (order === "asc") {
+      selectReviewsString += ` ASC;`;
+    } else if (order === "desc" || !order) selectReviewsString += ` DESC;`; //DEFAULT
   }
 
   if ((category && !sort_by) || (!category && !sort_by)) {
