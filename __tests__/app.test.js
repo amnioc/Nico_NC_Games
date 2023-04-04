@@ -40,26 +40,29 @@ describe("GET /api/categories", () => {
 
 describe("GET /api/reviews/:review_id", () => {
   it("200: returns an object with relevant properties related to review_id ", () => {
-    const testObj = {
-      review_id: 2,
-      title: "Jenga",
-      category: "dexterity",
-      designer: "Leslie Scott",
-      owner: "philippaclaire9",
-      review_body: "Fiddly fun for all the family",
-      review_img_url:
-        "https://images.pexels.com/photos/4473494/pexels-photo-4473494.jpeg?w=700&h=700",
-      created_at: `2021-01-18T10:01:41.251Z`,
-      votes: 5,
-    };
     return request(app)
       .get("/api/reviews/2")
       .expect(200)
       .then(({ body }) => {
         const { review } = body;
         expect(review).toBeInstanceOf(Object);
-        expect(Object.keys(review).length).toBe(9);
-        expect(review).toEqual(testObj);
+        //removed Object keys length due to later feature
+        expect(review).toBeInstanceOf(Object);
+        expect(review).toHaveProperty("review_id", 2);
+        expect(review).toHaveProperty(
+          "review_body",
+          "Fiddly fun for all the family"
+        );
+        expect(review).toHaveProperty("owner", "philippaclaire9");
+        expect(review).toHaveProperty("title", "Jenga");
+        expect(review).toHaveProperty("category", "dexterity");
+        expect(review).toHaveProperty(
+          "review_img_url",
+          "https://images.pexels.com/photos/4473494/pexels-photo-4473494.jpeg?w=700&h=700"
+        );
+        expect(review).toHaveProperty("created_at", `2021-01-18T10:01:41.251Z`);
+        expect(review).toHaveProperty("votes", 5);
+        expect(review).toHaveProperty("designer", "Leslie Scott");
       });
   });
 
@@ -509,6 +512,79 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid Sort Query");
+      });
+  });
+});
+
+describe('"/api/reviews" queries work together', () => {
+  it("200: should return array of reviews when queried on valid category, sort_by and order", () => {
+    return request(app)
+      .get(
+        "/api/reviews?category=social%20deduction&&?sort_by=review_id&&order=asc"
+      )
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(11);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("category", "social deduction");
+        });
+        expect(reviews).toBeSortedBy("review_id", { ascending: true });
+      });
+  });
+});
+
+describe("GET /api/reviews/:review_id (comment count included)", () => {
+  it("200: returns review object including key/value pair for comment count", () => {
+    const testObj = {
+      review_id: 2,
+      title: "Jenga",
+      category: "dexterity",
+      designer: "Leslie Scott",
+      owner: "philippaclaire9",
+      review_body: "Fiddly fun for all the family",
+      review_img_url:
+        "https://images.pexels.com/photos/4473494/pexels-photo-4473494.jpeg?w=700&h=700",
+      created_at: `2021-01-18T10:01:41.251Z`,
+      votes: 5,
+      comment_count: 3,
+    };
+    return request(app)
+      .get("/api/reviews/2")
+      .expect(200)
+      .then(({ body }) => {
+        const { review } = body;
+        console.log(review);
+        expect(review).toBeInstanceOf(Object);
+        expect(Object.keys(review).length).toBe(10);
+        expect(review).toEqual(testObj);
+        expect(review).toHaveProperty("comment_count", expect.any(Number));
+        expect(review).toHaveProperty("review_id", expect.any(Number));
+        expect(review).toHaveProperty("review_body", expect.any(String));
+        expect(review).toHaveProperty("owner", expect.any(String));
+        expect(review).toHaveProperty("title", expect.any(String));
+        expect(review).toHaveProperty("category", expect.any(String));
+        expect(review).toHaveProperty("review_img_url", expect.any(String));
+        expect(review).toHaveProperty("created_at", expect.any(String));
+        expect(review).toHaveProperty("votes", expect.any(Number));
+        expect(review).toHaveProperty("designer", expect.any(String));
+      });
+  });
+  it('400: returns "invalid data format" for non-numerical review_id', () => {
+    return request(app)
+      .get("/api/reviews/abc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
+      });
+  });
+  it("404: review does not exist. Returns error message", () => {
+    return request(app)
+      .get("/api/reviews/45")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review Does Not Exist, Yet.");
       });
   });
 });

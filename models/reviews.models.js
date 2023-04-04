@@ -2,7 +2,10 @@ const db = require("../db/connection.js");
 
 exports.fetchReviewById = (review_id) => {
   return db
-    .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
+    .query(
+      `SELECT reviews.*, CAST(COUNT(comments.review_id) AS int) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE reviews.review_id = $1 GROUP BY reviews.review_id;`,
+      [review_id]
+    )
     .then((result) => {
       if (result.rows.length === 0) {
         return Promise.reject({
@@ -35,19 +38,25 @@ exports.fetchAllReviews = (category, sort_by, order) => {
   }
 
   if (category) {
-    selectReviewsString += ` WHERE reviews.category = $1`;
+    selectReviewsString += ` WHERE reviews.category = $1 GROUP BY reviews.review_id`;
     queryParameters.push(category);
-  } else if (sort_by) {
+  } else if (category && sort_by) {
+    selectReviewsString += ` ORDER BY reviews.${sort_by}`;
+  } else if (!category && sort_by) {
     selectReviewsString += ` GROUP BY reviews.review_id ORDER BY reviews.${sort_by}`;
-
-    if (order === "asc") {
-      selectReviewsString += ` ASC;`;
-    } else if (order === "desc" || !order) selectReviewsString += ` DESC;`; //DEFAULT
   }
 
-  if ((category && !sort_by) || (!category && !sort_by)) {
+  if (sort_by && order === "asc") {
+    selectReviewsString += ` ASC;`;
+  } else if (sort_by) {
+    selectReviewsString += ` DESC;`; //DEFAULT
+  }
+
+  if (!category && !sort_by && !order) {
     const finishingString = ` GROUP BY reviews.review_id ORDER BY reviews.created_at DESC`;
     selectReviewsString += finishingString;
+  } else if (category && !sort_by && !order) {
+    selectReviewsString += ` ORDER BY reviews.created_at DESC;`;
   }
 
   return db.query(selectReviewsString, queryParameters).then((result) => {
