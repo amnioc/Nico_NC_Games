@@ -40,18 +40,6 @@ describe("GET /api/categories", () => {
 
 describe("GET /api/reviews/:review_id", () => {
   it("200: returns an object with relevant properties related to review_id ", () => {
-    const testObj = {
-      review_id: 2,
-      title: "Jenga",
-      category: "dexterity",
-      designer: "Leslie Scott",
-      owner: "philippaclaire9",
-      review_body: "Fiddly fun for all the family",
-      review_img_url:
-        "https://images.pexels.com/photos/4473494/pexels-photo-4473494.jpeg?w=700&h=700",
-      created_at: `2021-01-18T10:01:41.251Z`,
-      votes: 5,
-    };
     return request(app)
       .get("/api/reviews/2")
       .expect(200)
@@ -59,7 +47,22 @@ describe("GET /api/reviews/:review_id", () => {
         const { review } = body;
         expect(review).toBeInstanceOf(Object);
         //removed Object keys length due to later feature
-        expect(review).toEqual(testObj);
+        expect(review).toBeInstanceOf(Object);
+        expect(review).toHaveProperty("review_id", 2);
+        expect(review).toHaveProperty(
+          "review_body",
+          "Fiddly fun for all the family"
+        );
+        expect(review).toHaveProperty("owner", "philippaclaire9");
+        expect(review).toHaveProperty("title", "Jenga");
+        expect(review).toHaveProperty("category", "dexterity");
+        expect(review).toHaveProperty(
+          "review_img_url",
+          "https://images.pexels.com/photos/4473494/pexels-photo-4473494.jpeg?w=700&h=700"
+        );
+        expect(review).toHaveProperty("created_at", `2021-01-18T10:01:41.251Z`);
+        expect(review).toHaveProperty("votes", 5);
+        expect(review).toHaveProperty("designer", "Leslie Scott");
       });
   });
 
