@@ -513,6 +513,25 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
   });
 });
 
+describe('"/api/reviews" queries work together', () => {
+  it("200: should return array of reviews when queried on valid category, sort_by and order", () => {
+    return request(app)
+      .get(
+        "/api/reviews?category=social%20deduction&&?sort_by=review_id&&order=asc"
+      )
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(11);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("category", "social deduction");
+        });
+        expect(reviews).toBeSortedBy("review_id", { ascending: true });
+      });
+  });
+});
+
 describe("General Errors/Issues Handling", () => {
   it('"404: returns a "route does not exist" message for mistyped path', () => {
     return request(app)
