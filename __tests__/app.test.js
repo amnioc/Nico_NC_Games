@@ -194,29 +194,15 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .post("/api/reviews/5/comments")
       .send(testComment)
       .expect(201)
-      .then((response) => {
-        expect(response.body).toBeInstanceOf(Object);
-        expect(response.body.comment).toHaveProperty(
-          "body",
-          expect.any(String)
-        );
-        expect(response.body.comment).toHaveProperty(
-          "author",
-          expect.any(String)
-        );
-        expect(response.body.comment).toHaveProperty(
-          "votes",
-          expect.any(Number)
-        );
-        expect(response.body.comment).toHaveProperty("review_id", 5);
-        expect(response.body.comment).toHaveProperty(
-          "comment_id",
-          expect.any(Number)
-        );
-        expect(response.body.comment).toHaveProperty(
-          "created_at",
-          expect.any(String)
-        );
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toHaveProperty("body", expect.any(String));
+        expect(comment).toHaveProperty("author", expect.any(String));
+        expect(comment).toHaveProperty("votes", expect.any(Number));
+        expect(comment).toHaveProperty("review_id", 5);
+        expect(comment).toHaveProperty("comment_id", expect.any(Number));
+        expect(comment).toHaveProperty("created_at", expect.any(String));
       });
   });
   it("400: returns 'User Does Not Exist' alert for username not in table", () => {
@@ -425,7 +411,7 @@ describe("QUERIES CATEGORY /api/reviews", () => {
 describe("SORT BY in /api/reviews", () => {
   it("200: sorts reviews returned by valid column", () => {
     return request(app)
-      .get("/api/reviews?sort_by=category")
+      .get("/api/reviews?sort_by=designer")
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
@@ -441,7 +427,7 @@ describe("SORT BY in /api/reviews", () => {
           expect(review).toHaveProperty("votes", expect.any(Number));
           expect(review).toHaveProperty("designer", expect.any(String));
         });
-        expect(reviews).toBeSortedBy("category", { descending: true }); //descending is default
+        expect(reviews).toBeSortedBy("designer", { descending: true }); //descending is default
       });
   });
   it("200: sorts reviews by date when no sort_by column given", () => {
@@ -555,7 +541,6 @@ describe("GET /api/reviews/:review_id (comment count included)", () => {
       .expect(200)
       .then(({ body }) => {
         const { review } = body;
-        console.log(review);
         expect(review).toBeInstanceOf(Object);
         expect(Object.keys(review).length).toBe(10);
         expect(review).toEqual(testObj);
@@ -585,6 +570,18 @@ describe("GET /api/reviews/:review_id (comment count included)", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("Review Does Not Exist, Yet.");
+      });
+  });
+});
+
+describe("GET /api", () => {
+  it("200: returns a JSON confirming all available enpoints on API", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        const { paths } = body;
+        expect(paths).toBeInstanceOf(Object);
       });
   });
 });

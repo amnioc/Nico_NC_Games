@@ -16,9 +16,12 @@ const {
 } = require("./error.handler.js");
 const { removeCommentById } = require("./controllers/comments.controllers.js");
 const { getAllUsers } = require("./controllers/users.controllers.js");
+const { getAvailablePaths } = require("./controllers/api.controller.js");
 module.exports = app;
 
 app.use(express.json());
+
+app.get("/api", getAvailablePaths);
 
 //returns categories with slug and desc
 app.get("/api/categories", getAllCategories);
