@@ -84,7 +84,7 @@
   },
 
   "GET /api/reviews/:review_id/comments": {
-    "description": "serves an array of comments related to specified review",
+    "description": "serves an array of comments related to a specific review ID",
 
     "exampleResponse": [
       {
@@ -99,7 +99,7 @@
   },
 
   "POST /api/reviews/:review_id/comments": {
-    "description": "serves user full details of comment posted for specified review",
+    "description": "serves full details of a new comment posted for a specific review ID",
     "exampleResponse": {
       "comment_id": 7,
       "body": "lots of social deduction!",
@@ -111,7 +111,7 @@
   },
 
   "DELETE /api/comments/:comment_id": {
-    "description": "serves empty object to client after deleting specified comment",
+    "description": "serves empty object to client after deleting a specific comment by ID",
     "exampleResponse": "{}"
   }
 }
