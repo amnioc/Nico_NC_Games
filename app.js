@@ -20,9 +20,8 @@ const { getAllUsers } = require("./controllers/users.controllers.js");
 const { getAvailablePaths } = require("./controllers/api.controller.js");
 module.exports = app;
 
-app.use(cors());
 app.use(express.json());
-
+app.use(cors());
 app.get("/api", getAvailablePaths);
 
 //returns categories with slug and desc
