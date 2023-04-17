@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const { getAllCategories } = require("./controllers/categories.controllers.js");
 const {
@@ -19,6 +20,7 @@ const { getAllUsers } = require("./controllers/users.controllers.js");
 const { getAvailablePaths } = require("./controllers/api.controller.js");
 module.exports = app;
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/api", getAvailablePaths);
