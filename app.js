@@ -1,12 +1,10 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-
 const {
   error500Handler,
   SQLErrors,
   CustomErrors,
-  incorrectRequestHandler,
 } = require("./error.handler.js");
 const apiRouter = require("./routes/api-router.js");
 const categoriesRouter = require("./routes/categories-router.js");
@@ -16,11 +14,12 @@ const usersRouter = require("./routes/users-router.js");
 
 app.use(express.json());
 app.use(cors());
+
+//routing
 app.use("/api", apiRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/reviews", reviewsRouter);
 app.use("/api/comments", commentsRouter);
-
 app.use("/api/users", usersRouter);
 
 //error handling below
