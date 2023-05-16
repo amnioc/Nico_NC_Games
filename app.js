@@ -1,45 +1,26 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { getAllCategories } = require("./controllers/categories.controllers.js");
-const {
-  getReviewById,
-  getAllReviews,
-  getReviewComments,
-  addReviewComment,
-  updateReviewVotes,
-} = require("./controllers/reviews.controllers.js");
 const {
   error500Handler,
   SQLErrors,
   CustomErrors,
-  incorrectRequestHandler,
 } = require("./error.handler.js");
-const { removeCommentById } = require("./controllers/comments.controllers.js");
-const { getAllUsers } = require("./controllers/users.controllers.js");
-const { getAvailablePaths } = require("./controllers/api.controller.js");
-module.exports = app;
+const apiRouter = require("./routes/api-router.js");
+const categoriesRouter = require("./routes/categories-router.js");
+const reviewsRouter = require("./routes/reviews-router.js");
+const commentsRouter = require("./routes/comments-router.js");
+const usersRouter = require("./routes/users-router.js");
 
 app.use(express.json());
 app.use(cors());
-app.get("/api", getAvailablePaths);
 
-//returns categories with slug and desc
-app.get("/api/categories", getAllCategories);
-
-app.get("/api/reviews", getAllReviews);
-
-app.get("/api/reviews/:review_id", getReviewById);
-
-app.patch("/api/reviews/:review_id", updateReviewVotes);
-
-app.post("/api/reviews/:review_id/comments", addReviewComment);
-
-app.get("/api/reviews/:review_id/comments", getReviewComments);
-
-app.delete("/api/comments/:comment_id", removeCommentById);
-
-app.get("/api/users", getAllUsers);
+//routing
+app.use("/api", apiRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/reviews", reviewsRouter);
+app.use("/api/comments", commentsRouter);
+app.use("/api/users", usersRouter);
 
 //error handling below
 app.use(SQLErrors);
@@ -55,3 +36,5 @@ app.use("*", (req, res, next) => {
   }
   res.status(404).send({ msg: "URL Does Not Exist or Method Not Allowed" });
 });
+
+module.exports = app;
