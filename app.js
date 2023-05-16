@@ -18,11 +18,15 @@ const {
 const { removeCommentById } = require("./controllers/comments.controllers.js");
 const { getAllUsers } = require("./controllers/users.controllers.js");
 const { getAvailablePaths } = require("./controllers/api.controller.js");
+
+const apiRouter = require("./routes/api-router.js");
+// const categories = require("./routes/categories-router.js");
 module.exports = app;
 
 app.use(express.json());
 app.use(cors());
-app.get("/api", getAvailablePaths);
+app.use("/api", apiRouter);
+//// app.get("/api", getAvailablePaths);
 
 //returns categories with slug and desc
 app.get("/api/categories", getAllCategories);
