@@ -1,6 +1,7 @@
 const {
   deleteCommentById,
   checkCommentExists,
+  changeCommentVotes,
 } = require("../models/comments.models");
 
 exports.removeCommentById = (req, res, next) => {
@@ -14,6 +15,19 @@ exports.removeCommentById = (req, res, next) => {
   Promise.all(commentPromises)
     .then(([comment]) => {
       res.status(204).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.updateCommentVotes = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { inc_votes } = req.body; //number to change votes by
+
+  changeCommentVotes(comment_id, inc_votes)
+    .then((comment) => {
+      return res.status(200).send({ comment });
     })
     .catch((err) => {
       next(err);
