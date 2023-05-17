@@ -6,6 +6,7 @@ const {
   checkReviewExists,
   insertReviewComment,
   changeReviewVotes,
+  insertReview,
 } = require("../models/reviews.models.js");
 const { checkUserExists } = require("../models/users.models.js");
 
@@ -21,6 +22,12 @@ exports.getReviewById = (req, res, next) => {
     });
 };
 
+exports.addReview = (req, res, next) => {
+  const newReview = req.body;
+  insertReview(newReview).then((review) => {
+    res.status(201).send({ review });
+  });
+};
 exports.getAllReviews = (req, res, next) => {
   const { category, sort_by, order } = req.query;
   const allReviewsPromises = [fetchAllReviews(category, sort_by, order)];

@@ -119,6 +119,45 @@ describe("GET /api/reviews", () => {
   });
 });
 
+describe("POST /api/reviews", () => {
+  it("201: should receive a review object and return new review with all fields", () => {
+    const testReview = {
+      owner: "philippaclaire9",
+      title: "Pack of Cards",
+      review_body: "It's a classic, the options are endless",
+      designer: "unknown",
+      category: "euro game",
+      review_img_url:
+        "https://plus.unsplash.com/premium_photo-1669825050501-b1d61e263df0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=627&q=80",
+    };
+
+    return request(app)
+      .post("/api/reviews")
+      .send(testReview)
+      .expect(201)
+      .then(({ body }) => {
+        const { review } = body;
+        expect(review).toBeInstanceOf(Object);
+        expect(review).toHaveProperty("review_id", expect.any(Number));
+        expect(review).toHaveProperty("title", "Pack of Cards");
+        expect(review).toHaveProperty("owner", "philippaclaire9");
+        expect(review).toHaveProperty(
+          "review_body",
+          "It's a classic, the options are endless"
+        );
+        expect(review).toHaveProperty("designer", "unknown");
+        expect(review).toHaveProperty("category", "euro game");
+        expect(review).toHaveProperty("review_img_url", expect.any(String));
+        expect(review).toHaveProperty("votes", expect.any(Number));
+        expect(review).toHaveProperty("comment_count", 0);
+        expect(review).toHaveProperty("created_at", expect.any(String));
+      });
+  });
+  //201 - review_img_url defaults when blank
+  //400 - user does not exist
+  //400 - missing information
+});
+
 describe("GET /api/reviews/:review_id/comments", () => {
   it("200: should return an array of comments for review_id in path", () => {
     const testObj = {
@@ -415,8 +454,6 @@ describe("PATCH /api/comments/:comment_id", () => {
         expect(body.msg).toBe("Comment Does Not Exist");
       });
   });
-
-  it("should ", () => {});
 });
 
 describe("GET /api/users", () => {

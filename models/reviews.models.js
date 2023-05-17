@@ -1,3 +1,4 @@
+const format = require("pg-format");
 const db = require("../db/connection.js");
 
 exports.fetchReviewById = (review_id) => {
@@ -115,5 +116,36 @@ exports.changeReviewVotes = (inc_votes, review_id) => {
     )
     .then((result) => {
       return result.rows[0];
+    });
+};
+
+exports.insertReview = (newReview) => {
+  const preparedReview = formattedReview(newReview);
+
+  function formattedReview(newReview) {
+    return [newReview].map((review) => [
+      review.owner,
+      review.title,
+      review.review_body,
+      review.designer,
+      review.category,
+      review.review_img_url,
+    ]);
+  }
+
+  const insertQueryString = format(
+    `INSERT INTO reviews (owner, title, review_body, designer, category, review_img_url) VALUES %L RETURNING *;`,
+
+    preparedReview
+  );
+
+  return db
+    .query(insertQueryString)
+    .then((result) => {
+      const id = result.rows[0].review_id;
+      return this.fetchReviewById(id);
+    })
+    .then((review) => {
+      return review;
     });
 };
