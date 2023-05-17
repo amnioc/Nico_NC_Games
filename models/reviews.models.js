@@ -123,24 +123,38 @@ exports.insertReview = (newReview) => {
   const preparedReview = formattedReview(newReview);
 
   function formattedReview(newReview) {
-    return [newReview].map((review) => [
-      review.owner,
-      review.title,
-      review.review_body,
-      review.designer,
-      review.category,
-      review.review_img_url,
-    ]);
+    return [newReview].map((review) => {
+      if (review.review_img_url) {
+        return [
+          review.owner,
+          review.title,
+          review.review_body,
+          review.designer,
+          review.category,
+          review.review_img_url,
+        ];
+      }
+
+      return [
+        review.owner,
+        review.title,
+        review.review_body,
+        review.designer,
+        review.category,
+      ];
+    });
   }
-
   const insertQueryString = format(
-    `INSERT INTO reviews (owner, title, review_body, designer, category, review_img_url) VALUES %L RETURNING *;`,
-
+    `INSERT INTO reviews (owner, title, review_body, designer, category) VALUES %L RETURNING * ;`,
+    preparedReview
+  );
+  const insertPictureQuery = format(
+    `INSERT INTO reviews (owner, title, review_body, designer, category, review_img_url) VALUES %L RETURNING * ;`,
     preparedReview
   );
 
   return db
-    .query(insertQueryString)
+    .query(newReview.review_img_url ? insertPictureQuery : insertQueryString)
     .then((result) => {
       const id = result.rows[0].review_id;
       return this.fetchReviewById(id);

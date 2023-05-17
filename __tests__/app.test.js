@@ -153,6 +153,29 @@ describe("POST /api/reviews", () => {
         expect(review).toHaveProperty("created_at", expect.any(String));
       });
   });
+  it("201: should receive a review object without review_img_url and return new review with default url", () => {
+    const testReview = {
+      owner: "philippaclaire9",
+      title: "Sushi Go",
+      review_body: "Endless Fun",
+      designer: "unknown",
+      category: "euro game",
+    };
+
+    return request(app)
+      .post("/api/reviews")
+      .send(testReview)
+      .expect(201)
+      .then(({ body }) => {
+        const { review } = body;
+        console.log(review);
+        expect(review).toBeInstanceOf(Object);
+        expect(review).toHaveProperty(
+          "review_img_url",
+          "https://images.pexels.com/photos/163064/play-stone-network-networked-interactive-163064.jpeg?w=700&h=700"
+        ); //default from seed
+      });
+  });
   //201 - review_img_url defaults when blank
   //400 - user does not exist
   //400 - missing information
