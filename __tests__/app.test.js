@@ -341,6 +341,84 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
+describe("PATCH /api/comments/:comment_id", () => {
+  it("200: should return updated comment with votes increased by incVotes value", () => {
+    const votes = { inc_votes: 1 };
+    return request(app)
+      .patch("/api/comments/3")
+      .send(votes)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toHaveProperty("comment_id", 3);
+        expect(comment).toHaveProperty("body", expect.any(String));
+        expect(comment).toHaveProperty("review_id", expect.any(Number));
+        expect(comment).toHaveProperty("author", expect.any(String));
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+        expect(comment.votes).toBe(11);
+      });
+  });
+  it("200: should return updated comment with votes decreased by negative incVotes value", () => {
+    const votes = { inc_votes: -3 };
+    return request(app)
+      .patch("/api/comments/4")
+      .send(votes)
+      .expect(200)
+      .then(({ body }) => {
+        const { comment } = body;
+        expect(comment).toBeInstanceOf(Object);
+        expect(comment).toHaveProperty("comment_id", 4);
+        expect(comment).toHaveProperty("body", expect.any(String));
+        expect(comment).toHaveProperty("review_id", expect.any(Number));
+        expect(comment).toHaveProperty("author", expect.any(String));
+        expect(comment).toHaveProperty("created_at", expect.any(String));
+        expect(comment.votes).toBe(13);
+      });
+  });
+  it("400: should return No Votes Provided for missing/null incVotes", () => {
+    const votes = {};
+    return request(app)
+      .patch("/api/comments/5")
+      .send(votes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No Votes Provided");
+      });
+  });
+  it("400: should return Invalid Data Type Used for non numerical incVotes value", () => {
+    const votes = { inc_votes: "three" };
+    return request(app)
+      .patch("/api/comments/4")
+      .send(votes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
+      });
+  });
+  it("400: should return Invalid Data Type Used for non numerical comment_id", () => {
+    const votes = { inc_votes: -2 };
+    return request(app)
+      .patch("/api/comments/two")
+      .send(votes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
+      });
+  });
+  it("404: should return Comment Does Not Exist for numerical comment_id not in table", () => {
+    const votes = { inc_votes: 21 };
+    return request(app)
+      .patch("/api/comments/1250")
+      .send(votes)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment Does Not Exist");
+      });
+  });
+
+  it("should ", () => {});
+});
+
 describe("GET /api/users", () => {
   it("200: returns array of users, each user is object with username, name and avatar_url key", () => {
     return request(app)
