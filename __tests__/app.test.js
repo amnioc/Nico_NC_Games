@@ -210,7 +210,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
     return request(app)
       .post("/api/reviews/5/comments")
       .send(testComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("User Does Not Exist.");
       });
@@ -375,6 +375,28 @@ describe("GET /api/users", () => {
   });
 });
 
+describe("GET /api/users/:username", () => {
+  it("200: returns a single user by username as object with username, name and avatar_url key", () => {
+    return request(app)
+      .get("/api/users/mallionaire")
+      .expect(200)
+      .then(({ body }) => {
+        const { user } = body;
+        expect(user).toBeInstanceOf(Object);
+        expect(user).toHaveProperty("username", "mallionaire");
+        expect(user).toHaveProperty("name", expect.any(String));
+        expect(user).toHaveProperty("avatar_url", expect.any(String));
+      });
+  });
+  it("404: returns `User does not exist` message for a invalid username", () => {
+    return request(app)
+      .get("/api/users/true_gamer")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("User Does Not Exist.");
+      });
+  });
+});
 describe("QUERIES CATEGORY /api/reviews", () => {
   it("200: returns reviews with Category specified in query ", () => {
     return request(app)
