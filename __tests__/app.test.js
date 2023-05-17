@@ -210,7 +210,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
     return request(app)
       .post("/api/reviews/5/comments")
       .send(testComment)
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("User Does Not Exist.");
       });
