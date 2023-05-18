@@ -690,6 +690,18 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
   });
 });
 
+describe("PAGINATION of GET /api/reviews results", () => {
+  it.only("200: returns default of 10 results on page", () => {
+    return request(app)
+      .get("/api/reviews?limit=10")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(10);
+      });
+  });
+});
 describe('"/api/reviews" queries work together', () => {
   it("200: should return array of reviews when queried on valid category, sort_by and order", () => {
     return request(app)

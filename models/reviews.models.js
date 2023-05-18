@@ -18,7 +18,7 @@ exports.fetchReviewById = (review_id) => {
     });
 };
 
-exports.fetchAllReviews = (category, sort_by, order) => {
+exports.fetchAllReviews = (category, sort_by, order, limit) => {
   let selectReviewsString = `SELECT reviews.review_id, reviews.owner, reviews.title, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, CAST(COUNT(comments.review_id) AS int) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id`;
   const queryParameters = [];
 
@@ -58,6 +58,12 @@ exports.fetchAllReviews = (category, sort_by, order) => {
     selectReviewsString += finishingString;
   } else if (category && !sort_by && !order) {
     selectReviewsString += ` ORDER BY reviews.created_at DESC;`;
+  }
+
+  if (limit) {
+    selectReviewsString += ` LIMIT ${limit}`;
+  } else if (!limit) {
+    selectReviewsString += ` LIMIT 10`;
   }
 
   return db.query(selectReviewsString, queryParameters).then((result) => {
