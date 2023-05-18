@@ -29,6 +29,17 @@
     }
   },
 
+  "GET /api/users/:username": {
+    "description": "serves an object of user by username and their details",
+    "exampleResponse": {
+      "users": {
+        "username": "dav3rid",
+        "name": "dave",
+        "avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+      }
+    }
+  },
+
   "GET /api/reviews": {
     "description": "serves an array of all reviews",
     "queries": ["category", "sort_by", "order"],
@@ -44,6 +55,28 @@
           "votes": 5
         }
       ]
+    }
+  },
+
+  "POST /api/reviews": {
+    "description": "serves full details of a new review posted with required values",
+    "exampleResponse": {
+      "review_id": 27,
+      "owner": "happyamy2016",
+      "title": "Pack of Cards",
+      "category": "deck-building",
+      "review_img_url": "https://images.unsplash.com/photo-1529480653440-0e5fd1af911c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
+      "created_at": "2023-05-18T11:32:48.838Z",
+      "votes": 0,
+      "designer": "unknown",
+      "comment_count": 0
+    },
+    "examplePost": {
+      "owner": "happyamy2016",
+      "title": "Pack of Cards",
+      "category": "deck-building",
+      "review_img_url": "https://images.unsplash.com/photo-1529480653440-0e5fd1af911c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
+      "designer": "unknown"
     }
   },
 
@@ -108,6 +141,22 @@
       "votes": 0,
       "created_at": "2023-04-07T10:14:33.824Z"
     }
+  },
+
+  "PATCH /api/comments/:comment_id": {
+    "description": "serves a specific comment with full details, updating votes key by number provided in incVotes object",
+
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 1,
+        "body": "I loved this game too!",
+        "review_id": 2,
+        "author": "happyamy2016",
+        "votes": 17,
+        "created_at": "2017-11-22T12:36:03.389Z"
+      }
+    },
+    "examplePatch": { "inc_votes": 1 }
   },
 
   "DELETE /api/comments/:comment_id": {
