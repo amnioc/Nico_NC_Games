@@ -119,7 +119,7 @@ describe("GET /api/reviews", () => {
   });
 });
 
-describe.only("POST /api/reviews", () => {
+describe("POST /api/reviews", () => {
   it("201: should receive a review object and return new review with all fields", () => {
     const testReview = {
       owner: "philippaclaire9",
