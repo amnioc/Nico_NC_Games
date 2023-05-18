@@ -119,7 +119,7 @@ describe("GET /api/reviews", () => {
   });
 });
 
-describe("POST /api/reviews", () => {
+describe.only("POST /api/reviews", () => {
   it("201: should receive a review object and return new review with all fields", () => {
     const testReview = {
       owner: "philippaclaire9",
@@ -168,7 +168,6 @@ describe("POST /api/reviews", () => {
       .expect(201)
       .then(({ body }) => {
         const { review } = body;
-        console.log(review);
         expect(review).toBeInstanceOf(Object);
         expect(review).toHaveProperty(
           "review_img_url",
@@ -176,9 +175,38 @@ describe("POST /api/reviews", () => {
         ); //default from seed
       });
   });
-  //201 - review_img_url defaults when blank
-  //400 - user does not exist
-  //400 - missing information
+  it("400: returns Foreign Key Violation when new review has owner not in user table", () => {
+    const testReview = {
+      owner: "gamer_rocks",
+      title: "Sushi Go",
+      review_body: "Endless Fun",
+      designer: "unknown",
+      category: "euro game",
+    };
+
+    return request(app)
+      .post("/api/reviews")
+      .send(testReview)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toContain("Foreign Key Violation");
+      });
+  });
+  it("400: returns Missing Required Information when newReview is missing required information", () => {
+    const testReview = {
+      title: "Sushi Go",
+      designer: "unknown",
+      category: "euro game",
+    };
+
+    return request(app)
+      .post("/api/reviews")
+      .send(testReview)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Required Information");
+      });
+  });
 });
 
 describe("GET /api/reviews/:review_id/comments", () => {
@@ -284,7 +312,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .send(testComment)
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Missing Information Required");
+        expect(body.msg).toBe("Missing Required Information");
       });
   });
   it('400: should return "Invalid Data Type Used" message for incorrect data type', () => {

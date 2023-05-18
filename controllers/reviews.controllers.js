@@ -24,9 +24,13 @@ exports.getReviewById = (req, res, next) => {
 
 exports.addReview = (req, res, next) => {
   const newReview = req.body;
-  insertReview(newReview).then((review) => {
-    res.status(201).send({ review });
-  });
+  insertReview(newReview)
+    .then((review) => {
+      res.status(201).send({ review });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 exports.getAllReviews = (req, res, next) => {
   const { category, sort_by, order } = req.query;
