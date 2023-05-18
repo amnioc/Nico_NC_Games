@@ -6,7 +6,9 @@ function SQLErrors(err, req, res, next) {
   if (err.code === "22P02") {
     res.status(400).send({ msg: "Invalid Data Type Used" });
   } else if (err.code === "23502") {
-    res.status(400).send({ msg: "Missing Information Required" });
+    res.status(400).send({ msg: "Missing Required Information" });
+  } else if (err.code === "23503") {
+    res.status(400).send({ msg: `Foreign Key Violation. ${err.detail}` });
   } else {
     next(err);
   }
