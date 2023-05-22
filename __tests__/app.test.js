@@ -93,7 +93,7 @@ describe("GET /api/reviews", () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
         reviews.forEach((review) => {
           expect(review).toHaveProperty("comment_count", expect.any(Number));
           expect(review).toHaveProperty("review_id", expect.any(Number));
@@ -104,6 +104,7 @@ describe("GET /api/reviews", () => {
           expect(review).toHaveProperty("created_at", expect.any(String));
           expect(review).toHaveProperty("votes", expect.any(Number));
           expect(review).toHaveProperty("designer", expect.any(String));
+          expect(review).toHaveProperty("total_reviews", 13);
         });
 
         expect(reviews).toBeSortedBy("created_at", { descending: true });
@@ -591,7 +592,8 @@ describe("QUERIES CATEGORY /api/reviews", () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
+        expect(reviews[0]).toHaveProperty("total_reviews", 13);
       });
   });
 });
@@ -603,7 +605,8 @@ describe("SORT BY in /api/reviews", () => {
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
+
         reviews.forEach((review) => {
           expect(review).toHaveProperty("comment_count", expect.any(Number));
           expect(review).toHaveProperty("review_id", expect.any(Number));
@@ -614,6 +617,7 @@ describe("SORT BY in /api/reviews", () => {
           expect(review).toHaveProperty("created_at", expect.any(String));
           expect(review).toHaveProperty("votes", expect.any(Number));
           expect(review).toHaveProperty("designer", expect.any(String));
+          expect(review).toHaveProperty("total_reviews", 13);
         });
         expect(reviews).toBeSortedBy("designer", { descending: true }); //descending is default
       });
@@ -625,7 +629,7 @@ describe("SORT BY in /api/reviews", () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
         expect(reviews).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -655,7 +659,8 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
+        expect(reviews[0]).toHaveProperty("total_reviews", 13);
         expect(reviews).toBeSortedBy("category", { ascending: true });
       });
   });
@@ -665,7 +670,8 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
+        expect(reviews[0]).toHaveProperty("total_reviews", 13);
         expect(reviews).toBeSortedBy("review_id", { descending: true });
       });
   });
@@ -676,7 +682,8 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
-        expect(reviews).toHaveLength(13);
+        expect(reviews).toHaveLength(10);
+        expect(reviews[0]).toHaveProperty("total_reviews", 13);
         expect(reviews).toBeSortedBy("created_at", { descending: true });
       });
   });
@@ -691,14 +698,103 @@ describe("ORDER asc/desc for sort_by queries on /api/reviews", () => {
 });
 
 describe("PAGINATION of GET /api/reviews results", () => {
-  it.only("200: returns default of 10 results on page", () => {
+  it("200: returns default of 10 results on page", () => {
     return request(app)
-      .get("/api/reviews?limit=10")
+      .get("/api/reviews")
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
         expect(reviews).toHaveLength(10);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("owner", expect.any(String));
+          expect(review).toHaveProperty("title", expect.any(String));
+          expect(review).toHaveProperty("category", expect.any(String));
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("votes", expect.any(Number));
+          expect(review).toHaveProperty("designer", expect.any(String));
+          expect(review).toHaveProperty("total_reviews", 13);
+        });
+      });
+  });
+  it("200: returns 5 results when limit is set", () => {
+    return request(app)
+      .get("/api/reviews?limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toHaveLength(5);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("total_reviews", 13);
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("owner", expect.any(String));
+          expect(review).toHaveProperty("title", expect.any(String));
+          expect(review).toHaveProperty("category", expect.any(String));
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("votes", expect.any(Number));
+          expect(review).toHaveProperty("designer", expect.any(String));
+        });
+      });
+  });
+  it.skip("200: returns results by page specified", () => {
+    return request(app)
+      .get("/api/reviews?p=2") // 3 results
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(3);
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("owner", expect.any(String));
+          expect(review).toHaveProperty("title", expect.any(String));
+          expect(review).toHaveProperty("category", expect.any(String));
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("votes", expect.any(Number));
+          expect(review).toHaveProperty("designer", expect.any(String));
+          expect(review).toHaveProperty("total_reviews", 13);
+        });
+      });
+  });
+  it.skip("404: returns empty page for page with no results", () => {
+    return request(app) //NOT DONEEEE
+      .get("/api/reviews?p=3")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("No Reviews Found");
+      });
+  });
+  //400: NON NUMBER USED FOR LIMIT
+  //404: empty page
+});
+describe("TOTAL COUNT returned from GET /api/reviews", () => {
+  it("200: returns a total_reviews count, discounting page limit", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=created_at&&limit=5")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviews } = body;
+        expect(reviews).toBeInstanceOf(Array);
+        expect(reviews).toHaveLength(5); //page limit
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("total_reviews", 13);
+          expect(review).toHaveProperty("comment_count", expect.any(Number));
+          expect(review).toHaveProperty("review_id", expect.any(Number));
+          expect(review).toHaveProperty("owner", expect.any(String));
+          expect(review).toHaveProperty("title", expect.any(String));
+          expect(review).toHaveProperty("category", expect.any(String));
+          expect(review).toHaveProperty("review_img_url", expect.any(String));
+          expect(review).toHaveProperty("created_at", expect.any(String));
+          expect(review).toHaveProperty("votes", expect.any(Number));
+          expect(review).toHaveProperty("designer", expect.any(String));
+        });
       });
   });
 });
@@ -712,9 +808,10 @@ describe('"/api/reviews" queries work together', () => {
       .then(({ body }) => {
         const { reviews } = body;
         expect(reviews).toBeInstanceOf(Array);
-        expect(reviews).toHaveLength(11);
+        expect(reviews).toHaveLength(10);
         reviews.forEach((review) => {
           expect(review).toHaveProperty("category", "social deduction");
+          expect(review).toHaveProperty("total_reviews", 11);
         });
         expect(reviews).toBeSortedBy("review_id", { ascending: true });
       });

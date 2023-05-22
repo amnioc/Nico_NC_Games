@@ -19,7 +19,7 @@ exports.fetchReviewById = (review_id) => {
 };
 
 exports.fetchAllReviews = (category, sort_by, order, limit) => {
-  let selectReviewsString = `SELECT reviews.review_id, reviews.owner, reviews.title, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, CAST(COUNT(comments.review_id) AS int) AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id`;
+  let selectReviewsString = `SELECT reviews.review_id, reviews.owner, reviews.title, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, CAST(COUNT(comments.review_id) AS int) AS comment_count, CAST(COUNT(*) OVER() AS int) AS total_reviews FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id`;
   const queryParameters = [];
 
   if (
@@ -48,16 +48,16 @@ exports.fetchAllReviews = (category, sort_by, order, limit) => {
   }
 
   if (sort_by && order === "asc") {
-    selectReviewsString += ` ASC;`;
+    selectReviewsString += ` ASC`;
   } else if (sort_by) {
-    selectReviewsString += ` DESC;`; //DEFAULT
+    selectReviewsString += ` DESC`; //DEFAULT
   }
 
   if (!category && !sort_by && !order) {
     const finishingString = ` GROUP BY reviews.review_id ORDER BY reviews.created_at DESC`;
     selectReviewsString += finishingString;
   } else if (category && !sort_by && !order) {
-    selectReviewsString += ` ORDER BY reviews.created_at DESC;`;
+    selectReviewsString += ` ORDER BY reviews.created_at DESC`;
   }
 
   if (limit) {
@@ -65,6 +65,8 @@ exports.fetchAllReviews = (category, sort_by, order, limit) => {
   } else if (!limit) {
     selectReviewsString += ` LIMIT 10`;
   }
+
+  // if (p)
 
   return db.query(selectReviewsString, queryParameters).then((result) => {
     return result.rows;
