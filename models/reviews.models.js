@@ -18,7 +18,7 @@ exports.fetchReviewById = (review_id) => {
     });
 };
 
-exports.fetchAllReviews = (category, sort_by, order, limit) => {
+exports.fetchAllReviews = (category, sort_by, order, limit, p) => {
   let selectReviewsString = `SELECT reviews.review_id, reviews.owner, reviews.title, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, CAST(COUNT(comments.review_id) AS int) AS comment_count, CAST(COUNT(*) OVER() AS int) AS total_reviews FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id`;
   const queryParameters = [];
 
@@ -60,15 +60,22 @@ exports.fetchAllReviews = (category, sort_by, order, limit) => {
     selectReviewsString += ` ORDER BY reviews.created_at DESC`;
   }
 
-  if (limit) {
-    selectReviewsString += ` LIMIT ${limit}`;
-  } else if (!limit) {
-    selectReviewsString += ` LIMIT 10`;
+  limit
+    ? (selectReviewsString += ` LIMIT ${limit}`)
+    : (selectReviewsString += ` LIMIT 10`);
+
+  if (p) {
+    queryParameters.push((limit || 10) * (parseInt(p) - 1));
+    selectReviewsString += ` OFFSET $1`;
   }
 
-  // if (p)
-
   return db.query(selectReviewsString, queryParameters).then((result) => {
+    if (result.rowCount === 0) {
+      return Promise.reject({
+        status: 404,
+        msg: "No Reviews Found",
+      });
+    }
     return result.rows;
   });
 };

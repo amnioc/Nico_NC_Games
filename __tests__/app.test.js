@@ -741,7 +741,7 @@ describe("PAGINATION of GET /api/reviews results", () => {
         });
       });
   });
-  it.skip("200: returns results by page specified", () => {
+  it("200: returns results by page specified", () => {
     return request(app)
       .get("/api/reviews?p=2") // 3 results
       .expect(200)
@@ -763,16 +763,22 @@ describe("PAGINATION of GET /api/reviews results", () => {
         });
       });
   });
-  it.skip("404: returns empty page for page with no results", () => {
-    return request(app) //NOT DONEEEE
+  it("404: returns empty page for page with no results", () => {
+    return request(app)
       .get("/api/reviews?p=3")
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("No Reviews Found");
       });
   });
-  //400: NON NUMBER USED FOR LIMIT
-  //404: empty page
+  it("400: returns Value Does Not Exist for non-numerical limit", () => {
+    return request(app)
+      .get("/api/reviews?limit=twenty")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Value Does Not Exist");
+      });
+  });
 });
 describe("TOTAL COUNT returned from GET /api/reviews", () => {
   it("200: returns a total_reviews count, discounting page limit", () => {
