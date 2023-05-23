@@ -33,8 +33,10 @@ exports.addReview = (req, res, next) => {
     });
 };
 exports.getAllReviews = (req, res, next) => {
-  const { category, sort_by, order } = req.query;
-  const allReviewsPromises = [fetchAllReviews(category, sort_by, order)];
+  const { category, sort_by, order, limit, p } = req.query;
+  const allReviewsPromises = [
+    fetchAllReviews(category, sort_by, order, limit, p),
+  ];
   if (category) {
     allReviewsPromises.push(checkCategoryExists(category));
   }
