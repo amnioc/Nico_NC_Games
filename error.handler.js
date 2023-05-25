@@ -10,7 +10,7 @@ function SQLErrors(err, req, res, next) {
   } else if (err.code === "23503") {
     res.status(400).send({ msg: `Foreign Key Violation. ${err.detail}` });
   } else if (err.code === "42703") {
-    res.status(400).send({ msg: "Value Does Not Exist" });
+    res.status(400).send({ msg: "Query Value Does Not Exist" });
   } else {
     next(err);
   }

@@ -52,15 +52,15 @@ exports.getAllReviews = (req, res, next) => {
 
 exports.getReviewComments = (req, res, next) => {
   const { review_id } = req.params;
-
-  const reviewPromises = [fetchReviewComments(review_id)];
+  const { limit, p } = req.query;
+  const reviewPromises = [fetchReviewComments(review_id, limit, p)];
   if (review_id) {
     reviewPromises.push(checkReviewExists(review_id));
   }
 
   Promise.all(reviewPromises)
-    .then((reviewComments) => {
-      res.status(200).send({ reviewComments: reviewComments[0] });
+    .then(([reviewComments]) => {
+      res.status(200).send({ reviewComments });
     })
     .catch((err) => {
       next(err);

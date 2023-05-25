@@ -71,24 +71,38 @@ exports.fetchAllReviews = (category, sort_by, order, limit, p) => {
 
   return db.query(selectReviewsString, queryParameters).then((result) => {
     if (result.rowCount === 0) {
-      return Promise.reject({
-        status: 404,
-        msg: "No Reviews Found",
+      return Promise.resolve({
+        status: 200,
+        msg: "No More Reviews Found",
       });
     }
     return result.rows;
   });
 };
 
-exports.fetchReviewComments = (review_id) => {
-  return db
-    .query(
-      `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC;`,
-      [review_id]
-    )
-    .then((result) => {
-      return result.rows;
-    });
+exports.fetchReviewComments = (review_id, limit, p) => {
+  let selectCommentsString = `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC`;
+
+  const queryParameters = [review_id];
+
+  limit
+    ? (selectCommentsString += ` LIMIT ${limit}`)
+    : (selectCommentsString += ` LIMIT 10`);
+
+  if (p) {
+    queryParameters.push((limit || 10) * parseInt(p - 1));
+    selectCommentsString += ` OFFSET $2`;
+  }
+
+  return db.query(selectCommentsString, queryParameters).then((result) => {
+    if (result.rows === 0) {
+      return Promise.resolve({
+        status: 200,
+        msg: "No More Comments Found",
+      });
+    }
+    return result.rows;
+  });
 };
 
 exports.checkReviewExists = (id) => {
