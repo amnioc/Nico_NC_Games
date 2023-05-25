@@ -274,6 +274,60 @@ describe("GET /api/reviews/:review_id/comments", () => {
   });
 });
 
+describe("PAGINATION of GET /api/reviews/:review_id/comments results", () => {
+  it("200: returns limit number of comments when queried", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?limit=2")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviewComments } = body;
+        expect(reviewComments).toBeInstanceOf(Array);
+        expect(reviewComments).toHaveLength(2); //test data has 3
+        reviewComments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("review_id", expect.any(Number));
+        });
+      });
+  });
+  it("200: returns (up to 10) results by page query", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?p=1")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviewComments } = body;
+        expect(reviewComments).toHaveLength(3);
+        reviewComments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("votes", expect.any(Number));
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("author", expect.any(String));
+          expect(comment).toHaveProperty("body", expect.any(String));
+          expect(comment).toHaveProperty("review_id", expect.any(Number));
+        });
+      });
+  });
+  it("200: returns empty page for page with no results", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?p=2")
+      .expect(200)
+      .then(({ body }) => {
+        const { reviewComments } = body;
+        expect(reviewComments).toEqual([]);
+      });
+  });
+  it("400: returns Query Value Does Not Exist for non-numerical limit", () => {
+    return request(app)
+      .get("/api/reviews/2/comments?limit=twenty")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Query Value Does Not Exist");
+      });
+  });
+});
 describe("POST /api/reviews/:review_id/comments", () => {
   it("201: returns the new comment inserted, for current user", () => {
     const testComment = {
@@ -763,23 +817,25 @@ describe("PAGINATION of GET /api/reviews results", () => {
         });
       });
   });
-  it("404: returns empty page for page with no results", () => {
+  it("200: returns No More Reviews Found for page with no results", () => {
     return request(app)
       .get("/api/reviews?p=3")
-      .expect(404)
+      .expect(200)
       .then(({ body }) => {
-        expect(body.msg).toBe("No Reviews Found");
+        const { reviews } = body;
+        expect(reviews.msg).toEqual("No More Reviews Found");
       });
   });
-  it("400: returns Value Does Not Exist for non-numerical limit", () => {
+  it("400: returns Query Value Does Not Exist for non-numerical limit", () => {
     return request(app)
       .get("/api/reviews?limit=twenty")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe("Value Does Not Exist");
+        expect(body.msg).toBe("Query Value Does Not Exist");
       });
   });
 });
+
 describe("TOTAL COUNT returned from GET /api/reviews", () => {
   it("200: returns a total_reviews count, discounting page limit", () => {
     return request(app)
