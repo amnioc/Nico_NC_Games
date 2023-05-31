@@ -73,7 +73,7 @@ exports.fetchAllReviews = (category, sort_by, order, limit, p) => {
     if (result.rowCount === 0) {
       return Promise.resolve({
         status: 200,
-        msg: "No More Reviews Found",
+        msg: "No Reviews Found",
       });
     }
     return result.rows;
