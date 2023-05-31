@@ -15,7 +15,11 @@ exports.getAllCategories = (req, res, next) => {
 
 exports.addCategory = (req, res, next) => {
   const newCategory = req.body;
-  insertCategory(newCategory).then((category) => {
-    res.status(201).send({ category });
-  });
+  insertCategory(newCategory)
+    .then((category) => {
+      res.status(201).send({ category });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

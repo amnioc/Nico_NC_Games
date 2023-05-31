@@ -58,6 +58,17 @@ describe("POST /api/categories", () => {
         });
       });
   });
+  it("400: should return Missing Required Information if sending empty required object field", () => {
+    const testCategory = { description: "the best games" };
+
+    return request(app)
+      .post("/api/categories")
+      .send(testCategory)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing Required Information");
+      });
+  });
 });
 
 describe("GET /api/reviews/:review_id", () => {
