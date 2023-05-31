@@ -1,4 +1,7 @@
-const { fetchAllCategories } = require("../models/categories.models.js");
+const {
+  fetchAllCategories,
+  insertCategory,
+} = require("../models/categories.models.js");
 
 exports.getAllCategories = (req, res, next) => {
   fetchAllCategories()
@@ -8,4 +11,11 @@ exports.getAllCategories = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.addCategory = (req, res, next) => {
+  const newCategory = req.body;
+  insertCategory(newCategory).then((category) => {
+    res.status(201).send({ category });
+  });
 };

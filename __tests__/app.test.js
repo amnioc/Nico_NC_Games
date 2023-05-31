@@ -38,6 +38,28 @@ describe("GET /api/categories", () => {
   });
 });
 
+describe("POST /api/categories", () => {
+  it("201: should return a category object with new topic details", () => {
+    const testCategory = {
+      slug: "thriller",
+      description: "puts you on the edge of your seat!",
+    };
+
+    return request(app)
+      .post("/api/categories")
+      .send(testCategory)
+      .expect(201)
+      .then(({ body }) => {
+        const { category } = body;
+        expect(category).toBeInstanceOf(Object);
+        expect(category).toMatchObject({
+          slug: expect.any(String),
+          description: expect.any(String),
+        });
+      });
+  });
+});
+
 describe("GET /api/reviews/:review_id", () => {
   it("200: returns an object with relevant properties related to review_id ", () => {
     return request(app)
@@ -817,13 +839,13 @@ describe("PAGINATION of GET /api/reviews results", () => {
         });
       });
   });
-  it("200: returns No More Reviews Found for page with no results", () => {
+  it("200: returns No  Reviews Found for page with no results", () => {
     return request(app)
       .get("/api/reviews?p=3")
       .expect(200)
       .then(({ body }) => {
         const { reviews } = body;
-        expect(reviews.msg).toEqual("No More Reviews Found");
+        expect(reviews.msg).toEqual("No Reviews Found");
       });
   });
   it("400: returns Query Value Does Not Exist for non-numerical limit", () => {
