@@ -80,6 +80,14 @@ exports.fetchAllReviews = (category, sort_by, order, limit, p) => {
   });
 };
 
+exports.deleteReviewById = (review_id) => {
+  return db
+    .query(`DELETE FROM reviews WHERE review_id = $1`, [review_id])
+    .then((result) => {
+      return result.rows;
+    });
+};
+
 exports.fetchReviewComments = (review_id, limit, p) => {
   let selectCommentsString = `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at DESC`;
 
