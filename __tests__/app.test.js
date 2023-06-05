@@ -361,6 +361,7 @@ describe("PAGINATION of GET /api/reviews/:review_id/comments results", () => {
       });
   });
 });
+
 describe("POST /api/reviews/:review_id/comments", () => {
   it("201: returns the new comment inserted, for current user", () => {
     const testComment = {
@@ -477,6 +478,33 @@ describe("PATCH /api/reviews/:review_id", () => {
     return request(app)
       .patch("/api/reviews/4")
       .send(testIncVotes)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid Data Type Used");
+      });
+  });
+});
+
+describe("DELETE /api/reviews/:review_id", () => {
+  it("204: should delete review by ID and return No Content to Client", () => {
+    return request(app)
+      .delete("/api/reviews/5")
+      .expect(204)
+      .then((response) => {
+        expect(response.body).toEqual({});
+      });
+  });
+  it("404: should return Review Does Not Exist, Yet for ID that is not in table", () => {
+    return request(app)
+      .delete("/api/reviews/123")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review Does Not Exist, Yet.");
+      });
+  });
+  it("400: should return Invalid Data Type for non-numerical review_id  ", () => {
+    return request(app)
+      .delete("/api/reviews/ten")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid Data Type Used");
@@ -651,6 +679,7 @@ describe("GET /api/users/:username", () => {
       });
   });
 });
+
 describe("QUERIES CATEGORY /api/reviews", () => {
   it("200: returns reviews with Category specified in query ", () => {
     return request(app)
@@ -893,6 +922,7 @@ describe("TOTAL COUNT returned from GET /api/reviews", () => {
       });
   });
 });
+
 describe('"/api/reviews" queries work together', () => {
   it("200: should return array of reviews when queried on valid category, sort_by and order", () => {
     return request(app)

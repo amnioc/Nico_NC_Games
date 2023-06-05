@@ -7,6 +7,7 @@ const {
   insertReviewComment,
   changeReviewVotes,
   insertReview,
+  deleteReviewById,
 } = require("../models/reviews.models.js");
 const { checkUserExists } = require("../models/users.models.js");
 
@@ -44,6 +45,23 @@ exports.getAllReviews = (req, res, next) => {
   Promise.all(allReviewsPromises)
     .then(([reviews]) => {
       res.status(200).send({ reviews });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.removeReviewById = (req, res, next) => {
+  const { review_id } = req.params;
+
+  const reviewPromises = [deleteReviewById(review_id)];
+  if (review_id) {
+    reviewPromises.push(checkReviewExists(review_id));
+  }
+
+  Promise.all(reviewPromises)
+    .then(([review]) => {
+      res.status(204).send({ review });
     })
     .catch((err) => {
       next(err);
