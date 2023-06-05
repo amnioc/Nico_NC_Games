@@ -9,10 +9,20 @@
     "exampleResponse": {
       "categories": [
         {
-          "description": "Players attempt to uncover each other's hidden role",
-          "slug": "Social deduction"
+          "slug": "Social deduction",
+          "description": "Players attempt to uncover each other's hidden role"
         }
       ]
+    }
+  },
+
+  "POST /api/categories": {
+    "description": "serves full details of a new category posted",
+    "exampleResponse": {
+      "category": {
+        "slug": "Thriller",
+        "description": "Puts you on the edge of your seat!"
+      }
     }
   },
 
@@ -116,9 +126,14 @@
     "examplePatch": { "inc_votes": 10 }
   },
 
+  "DELETE /api/reviews/:review_id": {
+    "description": "serves empty object to client after deleting a specific review by ID",
+    "exampleResponse": "{}"
+  },
+
   "GET /api/reviews/:review_id/comments": {
     "description": "serves an array of comments related to a specific review ID",
-
+    "queries": ["limit", "p"],
     "exampleResponse": [
       {
         "comment_id": 4,
