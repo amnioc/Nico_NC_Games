@@ -8,7 +8,7 @@ Including examples of POST, PATCH and DELETE methods for the client to interact 
 
 View the hosted API here: https://nicos-nc-games.onrender.com/api
 
-The front-end app that uses this API can be found here: https://nicos-nc-games.onrender.com/
+The front-end app that uses this API can be found here: https://nicos-nc-games.onrender.com/api
 Nico's NC Games Front-end repo can be found here: https://github.com/amnioc/nico-nc-games
 
 ## How To Clone and Run This Project Locally
